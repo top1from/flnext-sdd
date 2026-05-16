@@ -1,0 +1,32 @@
+{
+  "name": "flnext-sdd",
+  "version": "3.2.0",
+  "description": "FLNext-SDD — 基于 Claude Code 的 12 阶段规格驱动开发工作流",
+  "main": "cli.js",
+  "bin": {
+    "flnext-sdd": "./cli.js"
+  },
+  "files": [
+    "cli.js",
+    ".flnext-sdd/"
+  ],
+  "keywords": [
+    "sdd",
+    "spec-driven-development",
+    "claude-code",
+    "workflow",
+    "specification",
+    "ai-coding",
+    "flnext"
+  ],
+  "author": "qinhaijun",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qinhaijun/flnext-sdd"
+  },
+  "homepage": "https://github.com/qinhaijun/flnext-sdd#readme",
+  "engines": {
+    "node": ">=16"
+  }
+}

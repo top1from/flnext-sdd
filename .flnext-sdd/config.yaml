@@ -1,0 +1,76 @@
+---
+# FLNext-SDD 项目配置
+
+project_name: ""
+output_folder: "docs/sdd"
+feature_name: ""                          # 当前功能名称，每个新功能/需求独立子目录
+default_branch: "main"
+project_type: "greenfield"                # greenfield / brownfield
+
+# 功能隔离说明
+# 每个功能/需求在 docs/sdd/ 下生成独立子目录：
+#   docs/sdd/{feature_name}/
+#     ├── requirement-scope.md
+#     ├── prototype.md / .html / prd.md
+#     ├── architecture.md / database.md
+#     ├── adr/
+#     ├── review-report.md
+#     ├── api-design.md / ui-spec.md
+#     ├── testcase.md / test-report.md
+#     ├── SUBMISSION.md
+#     ├── acceptance-report.md
+#     ├── RELEASE-NOTES.md
+#     └── deltas/
+#
+# 项目级文件（非功能相关）保持在 docs/sdd/：
+#   docs/sdd/project-context.md / tech-stack.md / architecture-map.md
+
+# 团队配置
+team:
+  name: "FLTeam"
+  role_separator: "-"
+
+# 文档命名规范
+naming:
+  feature_request: "FR-{NNN}"
+  non_feature_request: "NFR-{NNN}"
+  test_case: "TC-{NNN}"
+  api_endpoint: "API-{NNN}"
+  module: "M-{NNN}"
+
+# Discovery 配置 (brownfield 项目)
+discovery:
+  scan_depth: "deep"                   # quick / deep / exhaustive
+  auto_detect_tech_stack: true
+  drift_detection: true
+  ambiguity_threshold: 0.2
+
+# 开发配置
+development:
+  wave_execution: true                 # 启用 7-Wave 编排
+  dual_compilation_gate: true          # 启用双编译门禁
+  subagent_execution: true             # 启用子代理并行开发
+  atomic_commits: true                 # 原子提交
+
+# AI 自检配置
+self_check:
+  enabled: true                        # 提测前强制执行 AI 自检
+  reference: "references/ai-self-check.md"
+  report_in_mr: true                   # 自检报告附在 MR 描述中
+  block_on_failure: true               # 有 ❌ 不通过项时阻止提测
+  categories:                          # 启用的检查类别（按项目类型调整）
+    - performance
+    - database
+    - external_api
+    - concurrency
+    - security
+    - error_handling
+    - code_quality
+    - frontend                        # 纯后端项目可删除此项
+
+# 确认配置
+confirmation:
+  strict_words: true                   # 启用严格确认词
+  allowed_confirm: ["确认", "confirm", "yes", "Y"]
+  allowed_modify: ["N", "no", "需要修改"]
+  allowed_save: ["S", "save", "保存进度"]
