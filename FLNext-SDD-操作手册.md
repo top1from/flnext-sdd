@@ -271,18 +271,19 @@ main                       ← 🔒 生产环境（保护分支，只接受从 d
 
 ### 第一步：安装框架
 
-**方式一：npm（推荐）**
+**方式一：npx（推荐）**
 ```bash
 npx flnext-sdd@latest
 ```
 
-**方式二：本地脚本**
+**方式二：从 GitHub 安装**
 ```bash
+git clone https://github.com/top1from/flnext-sdd.git
+cd flnext-sdd/.flnext-sdd
 # Windows
-powershell -File "D:/WORK2024/AI2026/flnext-sdd/.flnext-sdd/install.ps1" -ProjectName "my-project"
-
+powershell -File install.ps1 -ProjectName "my-project" -TargetDir "../.."
 # Linux/macOS
-bash D:/WORK2024/AI2026/flnext-sdd/.flnext-sdd/install.sh --name "my-project"
+bash install.sh --name "my-project" --target "../.."
 ```
 
 安装后目录结构：
@@ -573,12 +574,7 @@ git push origin main --tags
 
 ```bash
 cd your-existing-project
-
-# Windows
-powershell -File "D:/WORK2024/AI2026/flnext-sdd/.flnext-sdd/install.ps1" -ProjectName "your-project"
-
-# Linux/macOS
-bash D:/WORK2024/AI2026/flnext-sdd/.flnext-sdd/install.sh --name "your-project"
+npx flnext-sdd@latest
 ```
 
 安装脚本会自动检测到这是一个 **老项目（Brownfield）**：
