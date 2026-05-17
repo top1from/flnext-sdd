@@ -1,4 +1,4 @@
-# FLNext-SDD v3.1.0 操作手册
+# FLNext-SDD v3.2.1 操作手册
 
 > 基于 Claude Code 的规格驱动开发（Spec-Driven Development）工作流框架
 > 适用对象：新人入门、团队培训
@@ -271,15 +271,17 @@ main                       ← 🔒 生产环境（保护分支，只接受从 d
 
 ### 第一步：安装框架
 
+**方式一：npm（推荐）**
 ```bash
-# 创建新项目目录
-mkdir my-project
-cd my-project
+npx flnext-sdd@latest
+```
 
-# Windows 用户
+**方式二：本地脚本**
+```bash
+# Windows
 powershell -File "D:/WORK2024/AI2026/flnext-sdd/.flnext-sdd/install.ps1" -ProjectName "my-project"
 
-# Linux/macOS 用户
+# Linux/macOS
 bash D:/WORK2024/AI2026/flnext-sdd/.flnext-sdd/install.sh --name "my-project"
 ```
 
@@ -862,6 +864,7 @@ git branch -d hotfix/{dev}-{desc}
 ---
 
 > **FLNext-SDD v3.2.1**
-> 框架位置: `D:/WORK2024/AI2026/flnext-sdd/`
-> 更新日期: 2026-05-17
-> 更新: 分支策略简化（7→5种）+ 保护分支规则 + hotfix 流程
+> GitHub: https://github.com/top1from/flnext-sdd
+> npm: npx flnext-sdd@latest
+> 108 文件 | 12 阶段 | 15 命令 | 12 Agent | 8 类 40 项自检
+> 审计对标: BMAD · GSD · Ouroboros · SDD-Team · OpenSpec · Spec-Kit · Superpowers
