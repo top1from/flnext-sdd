@@ -1,6 +1,6 @@
 {
   "name": "flnext-sdd",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "FLNext-SDD — 基于 Claude Code 的 12 阶段规格驱动开发工作流",
   "main": "cli.js",
   "bin": {
@@ -19,13 +19,13 @@
     "ai-coding",
     "flnext"
   ],
-  "author": "topl5from",
+  "author": "top1from",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/topl5from/flnext-sdd"
+    "url": "https://github.com/top1from/flnext-sdd"
   },
-  "homepage": "https://github.com/topl5from/flnext-sdd#readme",
+  "homepage": "https://github.com/top1from/flnext-sdd#readme",
   "engines": {
     "node": ">=16"
   }
