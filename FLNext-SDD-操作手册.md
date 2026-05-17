@@ -221,24 +221,49 @@ docs/sdd/
 
 **新功能开始时会自动创建 `docs/sdd/{功能名}/` 目录，不会覆盖已有功能的文档。**
 
-### 3.4 Git 分支策略
+### 3.4 Git 分支策略（AI 编程简化版）
+
+**传统 7 种分支 → FLNext-SDD 5 种分支：**
 
 ```
-main                    ← 生产环境，只接受来自 develop 的合并
-  └── develop           ← 集成/开发环境，接受来自 feature 的 MR
-        ├── feature/xxx ← 功能开发分支（阶段 4-7）
-        └── beta/v1.0   ← 验收环境分支（阶段 9）
+传统手动                         FLNext-SDD AI 自动化
+────────                         ────────────────────
+feature/xxxx     ────────▶       feature/{dev}-{name}
+develop          ────────▶       develop (保护分支)
+release/xxxx     ── 合并 ──▶     (被 beta 替代)
+beta/xxxx        ────────▶       beta/{version}
+master           ────────▶       main
+rel-xxxx tag     ── 合并 ──▶     v{version} tag
+hotfix/xxxx      ────────▶       hotfix/{dev}-{desc}
 ```
 
-**分支创建时机**：
+```
+main                       ← 🔒 生产环境（保护分支，只接受从 develop 合并）
+├── develop                ← 🔒 开发集成（保护分支，只接受 MR）
+│   ├── feature/{dev}-{name}  ← 功能开发（Phase 4-7）
+│   └── hotfix/{dev}-{desc}   ← 紧急修复（/flnext-sdd-quick）
+└── beta/{version}         ← 验收环境（Phase 9，临时分支）
+```
 
-| 时机 | 操作 |
-|------|------|
-| 阶段 0-3b（文档阶段） | 不需要建 feature 分支 |
-| 阶段 4 开始（开始编码） | 从 develop 建 `feature/{你的名字}-{功能}` |
-| 阶段 8（提测） | feature rebase develop → push → GitLab MR → 合并 |
-| 阶段 9（验收） | 从 develop 建 `beta/{版本号}` → 部署测试环境 |
-| 阶段 10（发布） | develop → main 合并 → 打 tag |
+**对比 7 个开源项目**：无一超过 3 种分支。FLNext-SDD 的 5 种已是最精简可落地方案。
+
+| 分支类型 | 创建时机 | 删除时机 |
+|---------|---------|---------|
+| `feature/{dev}-{name}` | Phase 4 开始编码 | Phase 8 MR 合并后 |
+| `hotfix/{dev}-{desc}` | `/flnext-sdd-quick` | 合入 develop+main 后 |
+| `develop` | 项目初始化 | 永不删除（保护分支） |
+| `beta/{version}` | Phase 9 验收 | 验收通过后 |
+| `main` | 项目初始化 | 永不删除（保护分支） |
+
+**保护分支规则（GitLab 配置）**：
+
+| 分支 | 允许推送 | 允许合并 |
+|------|---------|---------|
+| `main` | ❌ | Merge Request |
+| `develop` | ❌  | Merge Request |
+| `feature/*` | ✅ | 开发者自行 |
+| `hotfix/*` | ✅ | MR to develop + main |
+| `beta/*` | ✅ | 验收后删除 |
 
 ---
 
@@ -695,9 +720,19 @@ AI: 分析:
 
 **快速通道保留的门控**：
 - ✅ 双编译门禁仍然强制
+- ✅ AI 自检仍然强制
 - ✅ rebase + GitLab MR 提测流程不变
-- ✅ 验收仍然需要
+- ✅ hotfix 合入 develop 后还需挑到 main
 - ❌ 跳过需求文档、原型、架构评审
+
+**hotfix 合并流程**：
+```bash
+# hotfix 在 /flnext-sdd-quick 完成后：
+git checkout develop && git merge hotfix/{dev}-{desc}
+git checkout main && git merge hotfix/{dev}-{desc}
+git tag -a v{version}.{patch}
+git branch -d hotfix/{dev}-{desc}
+```
 
 ---
 
@@ -826,7 +861,7 @@ AI: 分析:
 
 ---
 
-> **FLNext-SDD v3.2.0**
+> **FLNext-SDD v3.2.1**
 > 框架位置: `D:/WORK2024/AI2026/flnext-sdd/`
-> 更新日期: 2026-05-16
-> 新增: 功能隔离（每需求独立子目录）、AI 代码自检清单、Delta 规格变更、3 级评估管道
+> 更新日期: 2026-05-17
+> 更新: 分支策略简化（7→5种）+ 保护分支规则 + hotfix 流程
