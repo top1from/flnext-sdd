@@ -19,13 +19,13 @@
     "ai-coding",
     "flnext"
   ],
-  "author": "qinhaijun",
+  "author": "topl5from",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/qinhaijun/flnext-sdd"
+    "url": "https://github.com/topl5from/flnext-sdd"
   },
-  "homepage": "https://github.com/qinhaijun/flnext-sdd#readme",
+  "homepage": "https://github.com/topl5from/flnext-sdd#readme",
   "engines": {
     "node": ">=16"
   }

@@ -42,6 +42,17 @@ Wave 7 (并行):
   F-07: 错误处理 / Loading 状态
 ```
 
+## Workflow
+
+| 步骤 | 文件 | 目标 |
+|------|------|------|
+| 1 | step-01-init.md | 初始化 + 读取设计文档 |
+| 2 | step-02-wave5.md | Wave 5: 共享组件 |
+| 3 | step-03-wave6.md | Wave 6: 页面 + 状态 + 路由 |
+| 4 | step-04-wave7.md | Wave 7: 表单验证 + 错误处理 |
+| 5 | step-05-gate-b.md | Phase B 编译门禁 |
+| 6 | step-06-complete.md | 完成确认 |
+
 ## 执行流程
 
 ### Step 1: 初始化

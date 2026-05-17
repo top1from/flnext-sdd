@@ -27,7 +27,7 @@ description: "[4/10] 后端开发 — 基于架构评审通过的设计实现后
 ## 输出文件
 
 - `docs/sdd/{FEATURE_NAME}/api-design.md` — API 实现详情（补充）
-- `.sdd/04-develop/IMPLEMENTATION.md` — 实现计划与进度
+- `docs/sdd/{FEATURE_NAME}/IMPLEMENTATION.md` — 实现计划与进度
 - 后端代码文件
 
 ## 前置条件
