@@ -1,13 +1,19 @@
 ---
 name: "flnext-sdd-accept"
-description: "[9/10] 验收 — 基于 develop 创建 beta 分支部署测试环境，产品经理和 QA 确认功能符合需求。Triggers on '验收', 'accept', 'acceptance'"
+description: "[9/10] 验收 — 基于 develop 创建 beta 分支部署测试环境，产品经理和 QA 确认功能符合需求。验收通过后自动回传AI结束时间到钉钉表格。Triggers on '验收', 'accept', 'acceptance'"
 ---
 
 # 阶段9: 验收 (Accept)
 
 ## Overview
 
-基于 develop 创建 beta/{version} 分支部署测试环境，产品经理和 QA 对功能进行验收确认，验证是否符合需求边界文档的定义。
+基于 develop 创建 beta/{version} 分支部署测试环境，产品经理和 QA 对功能进行验收确认，验证是否符合需求边界文档的定义。验收通过后自动回传AI结束时间到钉钉AI表格"AI 产研需求管理"。
+
+## 钉钉AI表格集成
+
+验收完成时自动回传：
+- **AI结束时间**: 写入钉钉表格的"AI结束时间"字段
+- 依赖 STATE.md `dingtalk` 段中的 base_id、table_id、record_id 和 field_mapping
 
 ## Hard Gate
 

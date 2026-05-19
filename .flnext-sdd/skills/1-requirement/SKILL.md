@@ -1,13 +1,22 @@
 ---
 name: "flnext-sdd-requirement"
-description: "[1/10] 需求讨论 — 通过苏格拉底式追问明确需求范围。Triggers on '需求讨论', 'requirement', '开始需求'"
+description: "[1/10] 需求讨论 — 从钉钉AI表格获取待排期需求，通过苏格拉底式追问明确需求范围。Triggers on '需求讨论', 'requirement', '开始需求'"
 ---
 
 # 阶段1: 需求讨论
 
 ## Overview
 
-通过苏格拉底式追问，逐步明确需求范围，输出需求边界文档。确保团队对需求的理解一致，避免后期因需求模糊导致的返工。
+从钉钉AI表格"AI 产研需求管理"获取当前用户的待排期需求，通过苏格拉底式追问逐步明确需求范围，输出需求边界文档。需求确认后自动回传AI开始时间到钉钉表格。
+
+## 钉钉AI表格集成
+
+本阶段与钉钉AI表格"AI 产研需求管理"深度集成：
+- **Step 1**: 自动查询待排期需求列表（过滤：处理人=我 AND 状态=待排期）
+- **Step 4**: 需求确认后自动回传 AI开始时间
+- **验收阶段(Step 5)**: 验收通过后自动回传 AI结束时间
+
+表格字段映射存储在 STATE.md `dingtalk` 段，首次查询时自动发现并缓存。
 
 ## Hard Gate
 
@@ -22,6 +31,7 @@ description: "[1/10] 需求讨论 — 通过苏格拉底式追问明确需求范
 1. Brownfield: Discovery 完成 (Phase 0 CONFIRMED)
 2. Greenfield: 无前置条件
 3. 读取 `docs/sdd/project-context.md`（如存在）
+4. 钉钉AI表格"AI 产研需求管理"可访问（dws 命令可用）
 
 ## Workflow
 

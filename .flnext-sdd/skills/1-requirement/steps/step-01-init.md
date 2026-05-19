@@ -1,36 +1,113 @@
-# Step 1: 初始化需求讨论
+# Step 1: 初始化需求讨论（含钉钉AI表格集成）
 
 ## Goal
 
-了解项目背景，初始化需求讨论流程，建立需求讨论的基本框架。
+从钉钉AI表格"AI 产研需求管理"获取当前用户的待排期需求，选择需求后初始化需求讨论流程。
 
 ## Mandatory Execution Rules
 
-1. 读取 STATE.md 确认项目状态
-2. 如果 project_name 为空，必须询问项目名称
-3. 记录所有用户回答的信息
-4. 更新 STATE.md 的 current_step 和 steps_completed
+1. 必须先尝试从钉钉AI表格获取需求，失败后才降级为手动输入
+2. 所有 dws 命令必须加 `--format json`
+3. fieldId 必须从 table get 返回中提取，禁止硬编码或猜测
+4. 每个步骤完成后更新 STATE.md
 
 ## Instructions
 
-### 1.1 检查项目状态
+### 1.1 钉钉需求获取
 
-读取 `{project-root}/STATE.md`:
-- 如果 `project_name` 为空，询问: "请告诉我项目的名称，我将使用此名称称呼您和标识项目文档"
-- 更新 STATE.md 的 project_name 字段
+#### Step A: 查找 AI 产研需求管理表格
 
-### 1.2 了解业务背景
+```bash
+dws aitable base search --query "AI 产研需求管理" --format json
+```
 
-使用苏格拉底式追问，逐步深入了解需求:
+从返回中提取 `baseId`，更新到 STATE.md `dingtalk.base_id`。
 
-**第一个问题**: "请描述一下这个功能或项目的业务背景是什么？解决了什么问题？"
+#### Step B: 获取表格结构
 
-**追问方向**:
-- 如果用户回答模糊: "能否更具体地描述一下？"
-- 如果涉及用户: "主要的目标用户是谁？"
-- 如果涉及场景: "用户在什么场景下会使用这个功能？"
+```bash
+dws aitable base get --base-id <BASE_ID> --format json
+```
 
-### 1.3 记录关键信息
+从返回的 `tables` 中找到需求管理表，提取 `tableId`，更新到 STATE.md `dingtalk.table_id`。
+
+#### Step C: 获取字段映射
+
+```bash
+dws aitable table get --base-id <BASE_ID> --table-id <TABLE_ID> --format json
+```
+
+从返回的 `fields` 中识别并缓存以下 fieldId 到 STATE.md `dingtalk.field_mapping`：
+
+| 字段用途 | 识别方式 |
+|---------|---------|
+| req_id | 字段名包含"编号"或"需求编号" |
+| req_name | 字段名包含"名称"或"需求名称" |
+| status | 字段名包含"状态"，type 为 singleSelect |
+| handler | 字段名包含"处理人"，type 为 user |
+| ai_start | 字段名包含"AI开始时间" |
+| ai_end | 字段名包含"AI结束时间" |
+
+#### Step D: 查询待排期需求
+
+```bash
+dws aitable record query --base-id <BASE_ID> --table-id <TABLE_ID> \
+  --filters '{"operator":"and","operands":[{"operator":"eq","operands":["<STATUS_FIELD_ID>","待排期"]}]}' \
+  --field-ids "<REQ_ID_FIELD>,<REQ_NAME_FIELD>,<HANDLER_FIELD>,<STATUS_FIELD>,<DESC_FIELD>" \
+  --limit 100 --format json
+```
+
+> 注意：先不过滤处理人（user 类型字段 filter 支持有限），拿到待排期列表后再由 Claude 根据当前用户信息筛选"我本人"的记录。
+> `--field-ids` 必须指定，否则 autoNumber 类型字段（需求编号）不会返回。
+
+#### Step E: 展示需求列表
+
+展示格式：
+```
+📋 您的待排期需求列表：
+
+| # | 需求编号 | 需求名称 | 描述摘要 |
+|---|---------|---------|---------|
+| 1 | REQ-001 | xxx     | xxx     |
+| 2 | REQ-002 | xxx     | xxx     |
+
+请选择要开始的需求编号（输入序号或需求编号），或输入 M 手动输入需求。
+```
+
+使用 AskUserQuestion 让用户选择需求。
+
+#### Step F: 记录选中需求
+
+用户选择后：
+1. 提取选中记录的 `recordId` → 更新 STATE.md `dingtalk.record_id`
+2. 提取需求编号字段值 → 更新 STATE.md `dingtalk.requirement_id`
+3. 提取需求名称字段值 → 更新 STATE.md `dingtalk.requirement_name`
+4. 记录当前时间（ISO 格式 YYYY-MM-DDTHH:mm:ss）→ 更新 STATE.md `dingtalk.ai_start_time`
+5. 如果 STATE.md 的 `feature_name` 为空，用需求名称填充
+
+### 1.2 降级：手动输入模式
+
+IF 钉钉查询失败或用户选择手动输入：
+
+1. 询问项目/功能名称
+2. 更新 STATE.md project_name 和 feature_name
+3. 询问业务背景（原有流程）
+
+### 1.3 业务背景确认
+
+IF 从钉钉获取了需求信息：
+1. 复述从表格中获取的需求描述
+2. 确认: "根据钉钉需求管理中的记录，本需求是：[需求名称]，主要目标：[描述]。这个理解是否准确？"
+3. 追问细节:
+   - "能否补充更多业务背景？"
+   - "主要的目标用户是谁？"
+   - "用户在什么场景下会使用这个功能？"
+
+IF 手动输入模式（原有流程）：
+1. 询问: "请描述一下这个功能或项目的业务背景是什么？解决了什么问题？"
+2. 追问方向与原流程一致
+
+### 1.4 记录关键信息
 
 在对话中记录以下信息:
 - 业务背景描述
@@ -38,10 +115,22 @@
 - 主要使用场景
 - 问题痛点
 
-### 1.4 确认理解
+### 1.5 更新 STATE.md
 
-向用户确认理解是否正确:
-"根据您的描述，我的理解是：[总结内容]。这个理解是否准确？"
+```yaml
+current_phase: 1
+phase_status: in_progress
+current_step: "step-01-init"
+steps_completed: ["step-01-init"]
+dingtalk:
+  base_id: "<FROM_DINGTALK>"
+  table_id: "<FROM_DINGTALK>"
+  record_id: "<FROM_DINGTALK>"
+  requirement_id: "<FROM_DINGTALK>"
+  requirement_name: "<FROM_DINGTALK>"
+  ai_start_time: "<CURRENT_TIME>"
+  field_mapping: "<CACHED>"
+```
 
 ## Menu Options
 

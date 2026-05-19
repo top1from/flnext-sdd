@@ -97,6 +97,23 @@ compilation_gates:
     checked_at: ""
     error_log: ""
 
+# 钉钉AI表格集成
+dingtalk:
+  base_id: ""                              # AI 产研需求管理 baseId
+  table_id: ""                             # 需求表 tableId
+  record_id: ""                            # 当前需求记录 recordId
+  requirement_id: ""                       # 需求编号（从表格读取）
+  requirement_name: ""                     # 需求名称（从表格读取）
+  ai_start_time: ""                        # AI开始时间
+  ai_end_time: ""                          # AI结束时间
+  field_mapping:                           # 字段映射（首次查询后缓存）
+    status: ""                             # 状态字段 fieldId
+    handler: ""                            # 处理人字段 fieldId
+    ai_start: ""                           # AI开始时间 fieldId
+    ai_end: ""                             # AI结束时间 fieldId
+    req_id: ""                             # 需求编号 fieldId
+    req_name: ""                           # 需求名称 fieldId
+
 metadata:
   created_at: ""
   updated_at: ""

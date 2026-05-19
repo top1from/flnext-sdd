@@ -228,6 +228,23 @@ compilation_gates:
   frontend:
     status: pending
 
+# 钉钉AI表格集成
+dingtalk:
+  base_id: ""
+  table_id: ""
+  record_id: ""
+  requirement_id: ""
+  requirement_name: ""
+  ai_start_time: ""
+  ai_end_time: ""
+  field_mapping:
+    status: ""
+    handler: ""
+    ai_start: ""
+    ai_end: ""
+    req_id: ""
+    req_name: ""
+
 metadata:
   created_at: "${date}"
   updated_at: "${date}"

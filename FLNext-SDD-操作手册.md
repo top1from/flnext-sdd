@@ -1,4 +1,4 @@
-# FLNext-SDD v3.2.1 操作手册
+# FLNext-SDD v3.3.0 操作手册
 
 > 基于 Claude Code 的规格驱动开发（Spec-Driven Development）工作流框架
 > 适用对象：新人入门、团队培训
@@ -45,6 +45,7 @@ FLNext-SDD 是一套在 Claude Code 中运行的 **规格驱动开发工作流**
 | 验收/发布 | 有独立阶段 + Beta 分支 | 多数没有 |
 | AI 行为约束 | 10 条宪法规原则 | 多数没有 |
 | AI 代码自检 | 提测前 8 大类约 40 项强制自检 | 多数没有 |
+| 钉钉需求联动 | 需求/验收阶段自动读写钉钉AI表格 | 多数没有 |
 
 ---
 
@@ -308,10 +309,30 @@ claude
 在 Claude Code 中输入: /flnext-sdd-requirement
 ```
 
-AI 会像产品经理一样和你对话：
+**自动联动钉钉AI表格**：AI 会自动查询"AI 产研需求管理"表格中你的待排期需求：
 
 ```
-AI: 你想做什么功能？可以先大致描述一下。
+AI: 正在从钉钉AI表格获取您的待排期需求...
+
+📋 您的待排期需求列表：
+
+| # | 需求编号    | 需求名称              | 优先级          |
+|---|-----------|---------------------|----------------|
+| 1 | fl-t-0006 | FLNEXT 店铺地址切换   | P1重要但不紧急   |
+
+请选择要开始的需求编号（输入序号或需求编号），或输入 M 手动输入需求。
+
+你: 1
+
+AI: 已选择需求 fl-t-0006: FLNEXT 店铺地址切换
+    需求详情已从钉钉表格获取，开始需求讨论。
+```
+
+选择需求后，AI 会像产品经理一样和你对话：
+
+```
+AI: 根据钉钉需求管理中的记录，本需求是：FLNEXT 店铺地址切换。
+    请补充更多业务背景：这个功能的主要目标用户是谁？
 
 你: 我想做一个短链接系统。
 
@@ -349,7 +370,7 @@ AI: 📋 需求边界确认
 你: 确认
 ```
 
-产出：`docs/sdd/requirement-scope.md`
+AI 自动回传 AI开始时间到钉钉表格，产出：`docs/sdd/requirement-scope.md`
 
 ### 第四步：阶段 2 — 原型设计
 
@@ -539,6 +560,9 @@ AI 会：
 2. 部署到测试验收环境
 3. 对照需求边界逐一验证功能
 4. 生成验收报告
+5. **自动回传 AI结束时间到钉钉AI表格**
+
+验收通过后，AI 自动将结束时间写入钉钉"AI 产研需求管理"表格的 AI结束时间字段，与阶段 1 的 AI开始时间形成完整的开发时间记录。
 
 产出：`docs/sdd/acceptance-report.md`
 
@@ -671,7 +695,7 @@ AI: 评估: 预计修改 3 个文件，适合快速通道。
 修改文件 > 10 个 → 走完整流程：
 
 ```
-/flnext-sdd-requirement   → 只讨论新功能的需求
+/flnext-sdd-requirement   → 从钉钉获取待排期需求，讨论新功能的需求
 /flnext-sdd-prototype     → 只设计新功能的原型
 /flnext-sdd-architecture  → 基于 project-context.md，不换技术栈
 /flnext-sdd-arch-review   → 对抗性评审
@@ -741,7 +765,7 @@ git branch -d hotfix/{dev}-{desc}
 | 命令 | 作用 | 什么时候用 |
 |------|------|-----------|
 | `/flnext-sdd-discovery` | 扫描老项目代码库 | 老项目接入第一步 |
-| `/flnext-sdd-requirement` | 需求讨论 | 开始一个新功能 |
+| `/flnext-sdd-requirement` | 需求讨论（自动获取钉钉待排期需求） | 开始一个新功能 |
 | `/flnext-sdd-prototype` | HTML 原型设计 | 需求确认后 |
 | `/flnext-sdd-architecture` | 架构设计 + ADR | 原型确认后 |
 | `/flnext-sdd-arch-review` | 对抗性架构评审 | 架构设计完成后 |
@@ -750,7 +774,7 @@ git branch -d hotfix/{dev}-{desc}
 | `/flnext-sdd-testcase` | 测试用例 | Phase B 通过后 |
 | `/flnext-sdd-testing` | 功能测试 | 测试用例确认后 |
 | `/flnext-sdd-submit` | 提测 | 测试 PASS 后 |
-| `/flnext-sdd-accept` | 验收 | 提测确认后 |
+| `/flnext-sdd-accept` | 验收（自动回传AI结束时间到钉钉） | 提测确认后 |
 | `/flnext-sdd-release` | 发布 | 验收 PASS 后 |
 
 ### 辅助命令
@@ -854,13 +878,42 @@ git branch -d hotfix/{dev}-{desc}
 │   ├── acceptance-report.md    ← 验收报告
 │   ├── RELEASE-NOTES.md        ← 发布说明
 │   └── deltas/                 ← 需求变更记录
-└── STATE.md                    ← 项目状态
+└── STATE.md                    ← 项目状态（含钉钉集成信息）
 ```
+
+### Q: 钉钉AI表格集成是怎么工作的？
+
+**需求阶段（/flnext-sdd-requirement）**：
+1. AI 自动搜索钉钉"AI 产研需求管理"表格
+2. 查询状态为"待排期"且处理人为你的需求列表
+3. 你选择一个需求后，AI 记录需求编号和名称
+4. 需求确认后，AI 自动回传 **AI开始时间** 到钉钉表格
+
+**验收阶段（/flnext-sdd-accept）**：
+1. 验收通过后，AI 自动回传 **AI结束时间** 到钉钉表格
+2. 与 AI开始时间形成完整的开发时间记录
+
+**STATE.md 中的钉钉状态段**：
+```yaml
+dingtalk:
+  base_id: "9bN7R..."            # 钉钉表格 baseId
+  table_id: "YVOcBAJ"            # 需求池 tableId
+  record_id: "2oMm..."           # 当前需求记录 recordId
+  requirement_id: "fl-t-0006"    # 需求编号
+  requirement_name: "FLNEXT 店铺地址切换"  # 需求名称
+  ai_start_time: "2026-05-19"    # AI开始时间
+  ai_end_time: ""                # AI结束时间（验收后填写）
+  field_mapping: {...}           # 字段映射缓存
+```
+
+### Q: 没有钉钉表格可以用吗？
+
+**可以。** 如果钉钉查询失败（网络问题、表格不存在等），系统会自动降级为手动输入模式，流程与之前完全一样。你可以直接描述需求，不受影响。
 
 ---
 
-> **FLNext-SDD v3.2.1**
+> **FLNext-SDD v3.3.0**
 > GitHub: https://github.com/top1from/flnext-sdd
 > npm: npx flnext-sdd@latest
-> 108 文件 | 12 阶段 | 15 命令 | 12 Agent | 8 类 40 项自检
+> 108 文件 | 12 阶段 | 15 命令 | 12 Agent | 8 类 40 项自检 | 钉钉AI表格联动
 > 审计对标: BMAD · GSD · Ouroboros · SDD-Team · OpenSpec · Spec-Kit · Superpowers
