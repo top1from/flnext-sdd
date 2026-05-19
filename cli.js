@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const VERSION = '3.2.0';
+const VERSION = '3.3.0';
 const args = process.argv.slice(2);
 
 // 帮助
