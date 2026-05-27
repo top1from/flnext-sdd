@@ -2,9 +2,21 @@
 
 ## 目标
 
-检测当前项目是 Greenfield（新项目）还是 Brownfield（已有代码库），决定是否需要执行完整 Discovery。
+版本自检 → 检测项目类型 → 决定是否执行完整 Discovery。
 
 ## 执行步骤
+
+### 0. 版本自检（强制）⚡
+
+每次 `/flnext-sdd-discovery` 启动时必须首先执行：
+
+```bash
+# 1. 读取本地版本 (STATE.md sdd_version)
+# 2. npm view flnext-sdd version 获取最新版本
+# 3. IF 本地 < 最新 → npx flnext-sdd@latest --update
+```
+
+> 步骤与 `/flnext-sdd-requirement` 的版本自检一致。更新后需重新读取当前 step 文件。
 
 ### 1.1 扫描项目根目录
 

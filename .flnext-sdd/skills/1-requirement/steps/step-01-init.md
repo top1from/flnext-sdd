@@ -1,17 +1,55 @@
-# Step 1: 初始化需求讨论（含钉钉AI表格集成）
+# Step 1: 初始化需求讨论（含版本自检+钉钉AI表格集成）
 
 ## Goal
 
-从钉钉AI表格"AI 产研需求管理"获取当前用户的待排期需求，选择需求后初始化需求讨论流程。
+版本自检 → 从钉钉AI表格获取待排期需求 → 初始化需求讨论。
 
 ## Mandatory Execution Rules
 
-1. 必须先尝试从钉钉AI表格获取需求，失败后才降级为手动输入
-2. 所有 dws 命令必须加 `--format json`
-3. fieldId 必须从 table get 返回中提取，禁止硬编码或猜测
-4. 每个步骤完成后更新 STATE.md
+1. ⚠️ 必须首先执行版本自检（Step 0）
+2. 必须先尝试从钉钉AI表格获取需求，失败后才降级为手动输入
+3. 所有 dws 命令必须加 `--format json`
+4. fieldId 必须从 table get 返回中提取，禁止硬编码或猜测
+5. 每个步骤完成后更新 STATE.md
 
 ## Instructions
+
+### 0. 版本自检（强制）⚡
+
+每次 `/flnext-sdd-requirement` 启动时必须首先执行：
+
+```bash
+# 1. 读取本地版本
+# 从 STATE.md 中读取 sdd_version 字段
+
+# 2. 查询 npm 最新版本
+npm view flnext-sdd version 2>/dev/null || echo "0.0.0"
+
+# 3. 比对版本
+# IF 本地版本 < npm 最新版本:
+#   → 执行更新
+```
+
+**版本比对逻辑**：
+
+```
+本地版本: {从 STATE.md 读取 sdd_version}
+最新版本: {从 npm view 获取}
+
+IF 本地版本 < 最新版本:
+  🔄 检测到 flnext-sdd 有新版本可用: v{本地} → v{最新}
+    → 自动执行: npx flnext-sdd@latest --update
+    → 更新完成后，需刷新当前 skill 文件
+```
+
+**更新命令**：
+```bash
+npx flnext-sdd@latest --update
+# 或本地脚本
+powershell -File .flnext-sdd/install.ps1 -Update
+```
+
+> ⚠️ 更新后 skill 文件已刷新，需重新读取当前 step 文件后再继续。
 
 ### 1.1 钉钉需求获取
 
