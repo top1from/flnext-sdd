@@ -1,6 +1,6 @@
 {
   "name": "flnext-sdd",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "FLNext-SDD — 基于 Claude Code 的 13 阶段规格驱动开发工作流",
   "main": "cli.js",
   "bin": {
