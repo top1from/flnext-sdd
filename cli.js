@@ -651,6 +651,7 @@ function runDeltaMerge(featureName) {
     console.log('\n  ✅ 所有变更已自动应用，无需手动操作\n');
   } else {
     console.log('\n  📝 MODIFIED/REMOVED 操作需手动更新主规格文档\n');
+  }
 }
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
