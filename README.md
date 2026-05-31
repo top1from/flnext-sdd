@@ -2,16 +2,13 @@
 
 基于 Claude Code 的 **13 阶段规格驱动开发工作流**（含 3b 架构评审、7b 集成门控）。
 
-> **v4.0 完全合并 SDD-Forge v2.0**：认知锚定、决策血缘、熔断机制、集成门控、受控会诊、紧急修复、跨阶段一致性自检。`sdd-forge` 包已废弃。
+> **v4.0**：认知锚定、决策血缘、熔断机制、集成门控、受控会诊、紧急修复、跨阶段一致性自检。`sdd-forge` 包已废弃。
 
 ## 快速开始
 
 ```bash
 # 在你的项目目录下
 npx flnext-sdd@latest
-
-# 从 SDD-Forge 迁移
-npx flnext-sdd --migrate-from-forge
 ```
 
 安装后在 Claude Code 中输入命令开始开发：
@@ -45,7 +42,6 @@ npx flnext-sdd --migrate-from-forge
 | `npx flnext-sdd --status` | 终端查看进度 |
 | `npx flnext-sdd --audit` | 宪法合规审计 |
 | `npx flnext-sdd --drift-check` | 代码漂移检测 |
-| `npx flnext-sdd --migrate-from-forge` | 从 SDD-Forge 迁移 |
 
 ## 核心特性
 
