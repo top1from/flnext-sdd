@@ -4,7 +4,7 @@
   "description": "FLNext-SDD — 基于 Claude Code 的 13 阶段规格驱动开发工作流",
   "main": "cli.js",
   "bin": {
-    "flnext-sdd": "./cli.js"
+    "flnext-sdd": "cli.js"
   },
   "files": [
     "cli.js",
@@ -23,7 +23,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/top1from/flnext-sdd"
+    "url": "git+https://github.com/top1from/flnext-sdd.git"
   },
   "homepage": "https://github.com/top1from/flnext-sdd#readme",
   "engines": {
