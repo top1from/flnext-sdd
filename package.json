@@ -28,5 +28,9 @@
   "homepage": "https://github.com/top1from/flnext-sdd#readme",
   "engines": {
     "node": ">=16"
+  },
+  "scripts": {
+    "test": "node --check cli.js",
+    "prepublishOnly": "node --check cli.js && echo '✓ 语法验证通过'"
   }
 }
