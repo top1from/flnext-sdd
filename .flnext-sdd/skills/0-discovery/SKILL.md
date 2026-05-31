@@ -1,6 +1,6 @@
 ---
 name: "flnext-sdd-discovery"
-description: "[0/10] Discovery — 项目发现与代码库扫描（老项目强制）。 Triggers on 'Discovery', '发现', '项目探索', '代码扫描'. Scans codebase with 4 parallel agents, produces project-context.md for all subsequent phases."
+description: "[0/13] Discovery — 项目发现与代码库扫描（老项目强制）。 Triggers on 'Discovery', '发现', '项目探索', '代码扫描'. Scans codebase with 4 parallel agents, produces project-context.md for all subsequent phases."
 ---
 
 # 阶段0: Discovery（项目发现）
@@ -127,7 +127,7 @@ description: "[0/10] Discovery — 项目发现与代码库扫描（老项目强
 **阈值判断**:
 - 歧义分数 < 0.2 → 低歧义，可自动处理
 - 歧义分数 0.2~0.5 → 中歧义，需要用户确认
-- 歧义分数 > 0.5 → 高歧义，必须人工判断
+- 歧义分数 > 0.5 → 高歧义，触发 `/flnext-sdd-consultation` 会诊模式（多 Agent 结构化分析）
 
 **4 PATH 路由**:
 

@@ -43,6 +43,7 @@ MR 链接: https://gitlab.com/.../merge_requests/{id}
 | 5. 前端开发 | ✅ 完成 (Phase B) | ui-spec.md + 前端代码 |
 | 6. 测试用例 | ✅ 完成 | testcase.md |
 | 7. 功能测试 | ✅ 完成 | test-report.md |
+| 7b. 集成门控 | ✅ 完成 | integration-gate-report.md |
 | 8. 提测 | ✅ 完成 | SUBMISSION.md + MR |
 
 ---
@@ -67,10 +68,10 @@ phases:
 
 current_phase: 8
 next_phase: 9
-next_action: "sdd-accept"
+next_action: /flnext-sdd-accept
 progress:
-  completed_phases: 9
-  percent: 75
+  completed_phases: 10
+  percent: 77
 ```
 
 ### 4.3 下一步提示
@@ -84,8 +85,6 @@ Git 操作总结:
   3. 推送 feature/{name} 到远程 ✅
   4. GitLab MR 创建 ✅
   5. MR 合并到 develop ✅
-  3. GitLab MR 创建 ✅
-  4. MR 合并到 develop ✅
 
 后续操作:
   → /flnext-sdd-accept  进入验收阶段

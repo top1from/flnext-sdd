@@ -69,6 +69,12 @@ phases:
     result: PASS
     beta_branch: "beta/{version}"
     report: "docs/sdd/{FEATURE_NAME}/acceptance-report.md"
+
+current_phase: 9
+next_action: /flnext-sdd-release
+progress:
+  completed_phases: 11
+  percent: 85
 ```
 
 ---

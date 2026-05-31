@@ -1,6 +1,6 @@
 ---
 name: "flnext-sdd-architecture"
-description: "[3/10] 架构设计 — 设计技术架构和数据库。Triggers on '架构', 'architecture', '技术设计', '数据库设计'"
+description: "[3/13] 架构设计 — 设计技术架构和数据库。Triggers on '架构', 'architecture', '技术设计', '数据库设计'"
 ---
 
 # 阶段3: 架构设计
@@ -86,10 +86,15 @@ phases:
     status: IN_PROGRESS
 ```
 
+## 参考规范
+
+- 命名规范: `references/naming-conventions.md`（文件命名、ID 命名、分支命名、优先级规范）
+- 3 级评估管道: `references/evaluation-pipeline.md`（Mechanical → Semantic → Consensus）
+
 ## Mandatory Execution Rules
 
 1. **必须遵循 Clean Architecture**
-2. **前后端命名大小写必须一致**
+2. **前后端命名大小写必须一致**（参见 `references/naming-conventions.md`）
 3. **Brownfield 不轻易更换技术栈**
 4. **必须输出 ADR 决策记录**（至少 3 个：数据库/API/认证）
 5. **每个 ADR 必须包含"如果选错的后果"**

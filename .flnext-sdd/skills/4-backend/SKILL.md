@@ -1,6 +1,6 @@
 ---
 name: "flnext-sdd-backend"
-description: "[4/10] 后端开发 — 基于架构评审通过的设计实现后端代码。使用 7-Wave 编排 Wave 1-4，执行 Phase A 编译门禁。Triggers on '后端开发', 'backend', 'API实现'"
+description: "[4/13] 后端开发 — 基于架构评审通过的设计实现后端代码。使用 7-Wave 编排 Wave 1-4，执行 Phase A 编译门禁。Triggers on '后端开发', 'backend', 'API实现'"
 ---
 
 # 阶段4: 后端开发
@@ -42,7 +42,8 @@ description: "[4/10] 后端开发 — 基于架构评审通过的设计实现后
 | 步骤 | 文件 | 目标 |
 |------|------|------|
 | 1 | step-01-init.md | 初始化 + 创建特性分支 + 生成实现计划 |
-| 2 | step-02-wave1-2.md | Wave 1-2: 数据库迁移 + Entity/DTO |
+| 2 | step-02-wave1.md | Wave 1: 数据库连接验证 + 迁移 |
+| 2.5 | step-02.5-wave2.md | Wave 2: Entity/DTO 并行创建 |
 | 3 | step-03-wave3.md | Wave 3: Repository + Service + Controller + Auth |
 | 4 | step-04-wave4.md | Wave 4: 后端测试 + API Client 类型 |
 | 5 | step-05-gate-a.md | Phase A 编译门禁 |
@@ -66,7 +67,7 @@ Wave 3 (并行):
 
 Wave 4 (并行):
   B-08: 后端集成测试
-  F-01: API Client Types (前端前置)
+  B-09: API Client Types (跨阶段任务：为前端 Wave 5 提供类型定义)
 ```
 
 ## 执行流程
@@ -79,11 +80,16 @@ Wave 4 (并行):
 4. 创建特性分支: `feature/{feature-name}`
 5. 生成 IMPLEMENTATION.md（含任务分解和依赖关系）
 
-### Step 2: Wave 1-2 执行
+### Step 2: Wave 1 执行
 
 **Wave 1** (串行):
+- 数据库连接验证（前置：从 ADR-001 读取目标数据库）
 - 执行数据库迁移脚本
 - 验证表结构创建正确
+
+详见 [step-02-wave1.md](steps/step-02-wave1.md)。
+
+### Step 2.5: Wave 2 执行
 
 **Wave 2** (并行):
 - 创建 Entity / Domain Models（子代理 B-02）
@@ -93,6 +99,8 @@ Wave 4 (并行):
 - 任务 XML（从 IMPLEMENTATION.md）
 - 相关设计文档段落
 - 原型线框图上下文
+
+详见 [step-02.5-wave2.md](steps/step-02.5-wave2.md)。
 
 ### Step 3: Wave 3 执行
 

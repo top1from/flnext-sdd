@@ -1,4 +1,4 @@
-# FLNext-SDD v3.3.0 操作手册
+# FLNext-SDD v4.0.0 操作手册
 
 > 基于 Claude Code 的规格驱动开发（Spec-Driven Development）工作流框架
 > 适用对象：新人入门、团队培训
@@ -16,6 +16,7 @@
 7. [紧急 Bug 修复](#七紧急-bug-修复)
 8. [命令速查](#八命令速查)
 9. [常见问题](#九常见问题)
+10. [纯后端项目配置](#211-纯后端项目配置)
 
 ---
 
@@ -23,7 +24,7 @@
 
 ### 什么是 FLNext-SDD？
 
-FLNext-SDD 是一套在 Claude Code 中运行的 **规格驱动开发工作流**。它把软件开发拆成 12 个严格有序的阶段，每个阶段：
+FLNext-SDD 是一套在 Claude Code 中运行的 **规格驱动开发工作流**。它把软件开发拆成 13 个严格有序的阶段，每个阶段：
 - 有明确的输入文档（上一阶段的产出）
 - 有明确的输出文档（给下一阶段使用）
 - 必须通过人工确认才能进入下一阶段
@@ -38,20 +39,22 @@ FLNext-SDD 是一套在 Claude Code 中运行的 **规格驱动开发工作流**
 ### 和其他 SDD 框架的区别
 
 | 维度 | FLNext-SDD | 其他框架 |
-|------|-----------|---------|
-| 阶段数 | 12（最完整） | 5-9 |
+|------|-----------|----------|
+| 阶段数 | 13（最完整） | 5-9 |
 | 编译验证 | 前后端独立编译门禁 | 大多数没有 |
 | 老项目支持 | 有 Discovery 阶段自动扫描 | 多数不支持 |
 | 验收/发布 | 有独立阶段 + Beta 分支 | 多数没有 |
-| AI 行为约束 | 10 条宪法规原则 | 多数没有 |
-| AI 代码自检 | 提测前 8 大类约 40 项强制自检 | 多数没有 |
+| AI 行为约束 | 14 条宪法规原则 | 多数没有 |
+| AI 代码自检 | 提测前 9 大类约 40 项强制自检 | 多数没有 |
 | 钉钉需求联动 | 需求/验收阶段自动读写钉钉AI表格 | 多数没有 |
+| 3 级评估管道 | 机械检查→语义检查→交叉验证 | 多数没有 |
+| Delta 增量变更 | 需求变更不重写文档，增量记录 | 多数没有 |
 
 ---
 
 ## 二、核心设计机制
 
-### 2.1 10 条宪法规原则
+### 2.1 14 条宪法规原则
 
 | # | 原则 | 含义 |
 |---|------|------|
@@ -60,25 +63,33 @@ FLNext-SDD 是一套在 Claude Code 中运行的 **规格驱动开发工作流**
 | 3 | **后端优先** | 先写后端 API，再写前端界面 |
 | 4 | **双编译门禁** | 后端编译通过 + 前端编译通过，两道坎 |
 | 5 | **测试驱动** | 测试用例先于功能测试编写 |
-| 6 | **提测规范** | 通过 rebase + GitLab MR 合并到 develop |
+| 6 | **提测规范** | 通过 rebase + MR/PR 合并到 develop（兼容 GitLab / GitHub）|
 | 7 | **禁止私自变技术** | 数据库连不上不能偷偷换 SQLite，必须报告等确认 |
 | 8 | **对抗性评审** | 评审必须发现问题，零发现 = 拒绝 |
 | 9 | **测试真实性** | 声称"通过"前必须先编译通过，测试期间不能改业务代码 |
 | 10 | **Discovery 优先** | 老项目必须先扫描代码库，理解现状 |
+| 11 | **认知锚定** | 每 5 步复述核心约束，防止长会话遗忘 |
+| 12 | **决策血缘** | 重大技术决策必须记录决策依据和替代方案 |
+| 13 | **熔断机制** | 连续 3 次违规自动暂停，强制合规审查 |
+| 14 | **集成门控** | Phase A/B 同时 PASSED + 全栈联调才能提测 |
 
-### 2.2 4 状态机
+### 2.2 5 状态机
 
 每个阶段都遵循同一个状态机：
 
 ```
 PENDING  ──用户启动──▶  IN_PROGRESS  ──工作完成──▶  AWAITING_CONFIRMATION  ──用户确认──▶  CONFIRMED
-                                                                                         │
-                                                                              用户要求修改 │
-                                                                                         ▼
-                                                                                  IN_PROGRESS（返工）
+    │                                                                                    │
+    │                                                                     用户要求修改    │
+    │                                                                                    ▼
+    └────────────────────────── SKIPPED（纯后端自动跳过）                    IN_PROGRESS（返工）
+                                                                                        │
+                                                                          项目完成       ▼
+                                                                                    COMPLETE（最终阶段）
 ```
 
 - **CONFIRMED 不可回退**（除非整体回滚）
+- **SKIPPED**：因项目配置（如 `backend_only`）自动跳过的阶段，不参与门控检查，等同于已通过
 - 只接受严格确认词：`确认` / `confirm` / `yes` / `Y`
 - `ok`、`好的`、`嗯` 不能通过门控
 
@@ -116,7 +127,7 @@ Phase B（前端开发完成后）
   Wave 1  数据库迁移           （串行，先跑通数据库）
   Wave 2  Entity + DTO         （并行，数据模型）
   Wave 3  Repository+Service+Controller  （并行，核心逻辑）
-  Wave 4  后端测试 + API Client 类型    （并行，验证+给前端接口）
+  Wave 4  后端测试 + API Client 类型    （B-08, B-09 并行，验证+给前端输出类型定义）
   ──── Phase A 编译门禁 ────
 
 前端开发（阶段 5）:
@@ -138,7 +149,7 @@ Phase B（前端开发完成后）
 
 提测前 AI 必须对自己的代码执行自检，防止低级错误进入 MR。
 
-**8 大检查类别**：
+**9 大检查类别**：
 
 | 类别 | 检查项数 | 典型问题 |
 |------|---------|---------|
@@ -150,15 +161,93 @@ Phase B（前端开发完成后）
 | 错误处理与韧性 | 5 | 空 catch、资源泄漏、空指针 |
 | 代码质量 | 5 | 命名不一致、过长函数、魔法数字 |
 | 前端专项 | 5 | 缺 4 状态、大列表无虚拟滚动、内存泄漏 |
+| 跨阶段一致性 ★v4.0 | 10 | 范围蔓延、越界实现、API不一致、私改技术选型、逻辑矛盾 |
 
 **判定规则**：
 - ✅ = 通过
 - ⚠️ = 需关注（标注在 MR 中，人工判断）
 - ❌ = 不通过（必须修复，给出文件路径+行号+建议）
 
-**结果**：自检报告自动附在 GitLab MR 描述中，供审查者参考。
+**结果**：自检报告自动附在 MR/PR 描述中，供审查者参考。
 
-### 2.8 禁止事项（AI 不能做的）
+### 2.8 3 级渐进式评估管道
+
+测试和评审不只是"编译通过"，而是采用 3 级渐进式评估：
+
+```
+Level 1: Mechanical   → 机械检查（编译、Lint、静态分析）
+Level 2: Semantic      → 语义检查（API 匹配、需求覆盖、边界）
+Level 3: Consensus     → 交叉验证（多角度审查）
+```
+
+| Level | 成本 | 时机 | 检查内容 |
+|-------|------|------|----------|
+| L1 机械检查 | $0 | 测试/编译门禁时 | 编译、类型检查、Lint、测试通过、覆盖率 > 70% |
+| L2 语义检查 | $$ | L1 通过后 | AC 合规、需求覆盖、边界处理、命名一致、漂移检测 |
+| L3 交叉验证 | $$$ | L2 不确定性 > 0.3 | 架构师 + QA + 反对者三角色投票，需 2/3 多数通过 |
+
+**评估流程**：
+```
+L1 失败 → 停止，人工介入
+L1 通过 → L2 评分
+  L2 < 0.5 → REWORK（返回开发）
+  L2 0.5-0.8 → 人工确认
+  L2 >= 0.8 且不确定性 <= 0.3 → PASS
+  L2 >= 0.8 且不确定性 > 0.3 → L3 交叉验证
+    L3 通过 → PASS
+    L3 不通过 → REWORK
+```
+
+### 2.9 Delta 增量变更模型
+
+需求变更时，**不要重写整个文档**，使用 Delta 增量记录：
+
+```
+原规格文档（source of truth）
+    +
+Delta 变更记录（ADDED/MODIFIED/REMOVED/RENAMED）
+    =
+更新后的规格文档
+```
+
+**四种 Delta 操作**：
+- **ADDED** — 新增需求或章节
+- **MODIFIED** — 修改已有需求（含 before/after）
+- **REMOVED** — 删除需求（须含原因）
+- **RENAMED** — 重命名 ID（保持可追溯性）
+
+**使用方式**：
+```bash
+# 在 Claude Code 中使用
+/flnext-sdd-delta
+
+# 或使用 CLI 命令（自动检测冲突 + 自动应用 ADDED 操作）
+npx flnext-sdd --delta-merge --feature {功能名}
+```
+
+> **自动合并**：无冲突的 ADDED 操作会自动应用到主规格文档。MODIFIED 和 REMOVED 操作需人工确认后更新。
+
+**Delta 文件格式**（存放在 `docs/sdd/{功能名}/deltas/`）：
+```markdown
+# Delta: {变更描述}
+
+> 变更类型: 需求变更
+> 日期: 2026-05-31
+> 影响阶段: 4-后端, 5-前端
+
+## MODIFIED
+### FR-003: 统计数据增加搜索筛选
+- 原描述: 仅支持查看访问次数
+- 修改为: 支持按日期范围和来源筛选
+- 修改原因: 用户反馈需要更细粒度的统计
+
+## ADDED
+### FR-004: 搜索框自动补全
+- 描述: 输入时自动提示历史搜索词
+- 优先级: P2
+```
+
+### 2.10 禁止事项（AI 不能做的）
 
 | AI 不能做的事 | 为什么 |
 |-------------|--------|
@@ -169,11 +258,48 @@ Phase B（前端开发完成后）
 | "联调通过"但没编译 | 违反测试真实性 |
 | 说 ok 就算确认 | 违反严格确认词 |
 
+### 2.11 纯后端项目配置
+
+对于纯后端项目（无前端代码），可以配置自动跳过前端阶段：
+
+**配置方式**：
+
+1. **自动检测**：安装时 CLI 自动检测是否为纯后端项目
+2. **手动配置**：在 `config.yaml` 中设置 `backend_only: true`
+3. **STATE 标记**：`project_backend_only: true`
+
+**自动跳过的阶段**：
+
+| 阶段 | 处理方式 |
+|------|----------|
+| 阶段5 前端开发 | 自动跳过，标记 SKIPPED |
+| Phase B 编译门禁 | 自动跳过，标记 SKIPPED |
+| 阶段6 测试用例 | 聚焦后端：API 端点测试、数据库测试、业务逻辑测试；跳过 UI 交互测试 |
+| 阶段7 功能测试 | 编译复检仅后端；测试聚焦 API/数据库/业务逻辑 |
+| 阶段7b 集成门控 | 仅验证 Phase A，Phase B 自动跳过 |
+| 自检类别 | 自动排除 `frontend` 类别 |
+
+**示例**：
+```yaml
+# config.yaml
+project_type: "brownfield"
+backend_only: true  # 纯后端项目
+
+# STATE.md
+project_backend_only: true
+```
+
+**使用场景**：
+- 纯 REST API 项目
+- 微服务后端
+- CLI 工具
+- 数据处理服务
+
 ---
 
 ## 三、流程机制
 
-### 3.1 标准流程（12 阶段）
+### 3.1 标准流程（13 阶段）
 
 ```
 阶段 0:  Discovery      — 代码库扫描（仅老项目）
@@ -185,7 +311,8 @@ Phase B（前端开发完成后）
 阶段 5:  前端开发        — Wave 5-7 + Phase B 编译
 阶段 6:  测试用例        — 列出所有要测的
 阶段 7:  功能测试        — 编译复检 + 执行测试
-阶段 8:  提测            — rebase develop → GitLab MR
+阶段 7b: 集成门控        — Phase A/B 同时 PASSED + 全栈联调
+阶段 8:  提测            — rebase develop → MR/PR（兼容 GitLab / GitHub）
 阶段 9:  验收            — Beta 分支 + 人工验收
 阶段 10: 发布            — merge main + 打版本标签
 ```
@@ -256,15 +383,15 @@ main                       ← 🔒 生产环境（保护分支，只接受从 d
 | `beta/{version}` | Phase 9 验收 | 验收通过后 |
 | `main` | 项目初始化 | 永不删除（保护分支） |
 
-**保护分支规则（GitLab 配置）**：
+**保护分支规则（Git 平台配置）**：
 
-| 分支 | 允许推送 | 允许合并 |
-|------|---------|---------|
-| `main` | ❌ | Merge Request |
-| `develop` | ❌  | Merge Request |
-| `feature/*` | ✅ | 开发者自行 |
-| `hotfix/*` | ✅ | MR to develop + main |
-| `beta/*` | ✅ | 验收后删除 |
+| 分支 | 允许推送 | 允许合并 | 合并方式 |
+|------|---------|---------|---------|
+| `main` | ❌ | maintainer | MR/PR |
+| `develop` | ❌ | maintainer | MR/PR |
+| `feature/*` | ✅ | 开发者 | — |
+| `hotfix/*` | ✅ | maintainer | MR/PR |
+| `beta/*` | ✅ | QA/PM | — |
 
 ---
 
@@ -428,6 +555,23 @@ AI: 对抗性架构评审报告
 你: 确认
 ```
 
+**Level 3 多角色交叉验证**：
+
+架构评审自动触发三角色审查：
+
+```
+┌─────────────────────────────────────┐
+│  Level 3: 多角色交叉验证            │
+│                                     │
+│  架构师 (Atlas) — 技术合理性        │
+│  QA (Hawk) — 边界和异常覆盖        │
+│  反对者 (Shadow) — 挑战所有假设     │
+│                                     │
+│  投票规则: 2/3 多数通过             │
+│  一票否决 = REWORK                  │
+└─────────────────────────────────────┘
+```
+
 产出：`docs/sdd/review-report.md`
 
 ### 第七步：阶段 4 — 后端开发
@@ -503,9 +647,45 @@ Wave 7: 表单验证 + 错误处理
 2. **交叉连接验证**：检查后端 API 是否真的被前端调用了
 3. **实现代码只读**：测试阶段不能改业务代码，发现 Bug → 上报
 
-产出：`docs/sdd/test-report.md`
+**3 级评估管道**：
 
-### 第十一步：阶段 8 — 提测
+```
+L1 机械检查 → 编译、Lint、测试通过、覆盖率 > 70%
+    │
+    ▼ 通过
+L2 语义检查 → AC 合规、需求覆盖、边界处理
+    │
+    ├── >= 0.8 且不确定性 <= 0.3 → PASS
+    │
+    └── >= 0.8 且不确定性 > 0.3 → L3 交叉验证
+                                      │
+                                ──不通过──▶ REWORK
+                                      │
+                                      通过
+                                      ▼
+                                    PASS
+```
+
+产出：`docs/sdd/{feature_name}/test-report.md`
+
+### 第十一步：阶段 7b — 集成门控
+
+```
+在 Claude Code 中输入: /flnext-sdd-integration-gate
+```
+
+**提测前的最后一道硬门控**，验证：
+
+1. Phase A（后端）与 Phase B（前端）编译门禁**同时**为 PASSED
+2. 全栈干净构建通过
+3. 前端真实调用后端 API（非 mock）
+4. 3–5 个核心用户流程端到端通过
+
+任一失败 → 路由回对应开发/测试阶段，**不得**直接提测。
+
+产出：`docs/sdd/{feature_name}/integration-gate-report.md`
+
+### 第十二步：阶段 8 — 提测
 
 ```
 在 Claude Code 中输入: /flnext-sdd-submit
@@ -539,17 +719,17 @@ git add <冲突文件> && git rebase --continue
 # 7. 推送 feature 分支
 git push origin feature/qinhaijun-short-url
 
-# 8. 登录 GitLab 创建 MR（附自检报告）
-# Source: feature/qinhaijun-short-url
-# Target: develop
+# 8. 创建 MR/PR（附自检报告）
+# GitLab: Merge Requests → Source: feature/xxx → Target: develop
+# GitHub: Pull Requests → base: develop ← compare: feature/xxx
 # Description: 包含 SDD 追溯 + AI 自检报告
 ```
 
-> **AI 自检清单**：提测前 AI 必须对代码进行 8 大类（性能、数据库、API、并发、安全、错误处理、代码质量、前端专项）约 40 项自检。❌ 项必须修复，⚠️ 项标注在 MR 中供审查者判断。详见 `.flnext-sdd/references/ai-self-check.md`。
+> **AI 自检清单**：提测前 AI 必须对代码进行 9 大类自检（含第 9 类跨阶段一致性）。❌ 项必须修复，⚠️ 项标注在 MR/PR 中供审查者判断。详见 `.flnext-sdd/references/ai-self-check.md`。
 
-产出：`docs/sdd/SUBMISSION.md` + GitLab MR 链接（含自检报告）
+产出：`docs/sdd/{feature_name}/SUBMISSION.md` + MR/PR 链接（含自检报告）
 
-### 第十二步：阶段 9 — 验收
+### 第十三步：阶段 9 — 验收
 
 ```
 在 Claude Code 中输入: /flnext-sdd-accept
@@ -564,9 +744,9 @@ AI 会：
 
 验收通过后，AI 自动将结束时间写入钉钉"AI 产研需求管理"表格的 AI结束时间字段，与阶段 1 的 AI开始时间形成完整的开发时间记录。
 
-产出：`docs/sdd/acceptance-report.md`
+产出：`docs/sdd/{feature_name}/acceptance-report.md`
 
-### 第十三步：阶段 10 — 发布
+### 第十四步：阶段 10 — 发布
 
 ```
 在 Claude Code 中输入: /flnext-sdd-release
@@ -584,7 +764,7 @@ git push origin main --tags
 - 哪个阶段最耗时？
 - 有没有可以改进的流程？
 
-产出：`docs/sdd/RELEASE-NOTES.md`
+产出：`docs/sdd/{feature_name}/RELEASE-NOTES.md`
 
 ---
 
@@ -743,7 +923,7 @@ AI: 分析:
 **快速通道保留的门控**：
 - ✅ 双编译门禁仍然强制
 - ✅ AI 自检仍然强制
-- ✅ rebase + GitLab MR 提测流程不变
+- ✅ rebase + MR/PR 提测流程不变
 - ✅ hotfix 合入 develop 后还需挑到 main
 - ❌ 跳过需求文档、原型、架构评审
 
@@ -773,7 +953,8 @@ git branch -d hotfix/{dev}-{desc}
 | `/flnext-sdd-frontend` | 前端开发 | Phase A 通过后 |
 | `/flnext-sdd-testcase` | 测试用例 | Phase B 通过后 |
 | `/flnext-sdd-testing` | 功能测试 | 测试用例确认后 |
-| `/flnext-sdd-submit` | 提测 | 测试 PASS 后 |
+| `/flnext-sdd-integration-gate` | 集成门控（双编译+全栈联调） | 功能测试 PASS 后 |
+| `/flnext-sdd-submit` | 提测 | 集成门控 CONFIRMED 后 |
 | `/flnext-sdd-accept` | 验收（自动回传AI结束时间到钉钉） | 提测确认后 |
 | `/flnext-sdd-release` | 发布 | 验收 PASS 后 |
 
@@ -782,8 +963,24 @@ git branch -d hotfix/{dev}-{desc}
 | 命令 | 作用 |
 |------|------|
 | `/flnext-sdd-status` | 查看当前进度、7-Wave 状态、下一步操作 |
-| `/flnext-sdd-quick` | 快速通道（紧急修复 / 小需求） |
+| `/flnext-sdd-quick` | 快速通道（小需求 / 配置调整，< 10 文件） |
+| `/flnext-sdd-hotfix` | 紧急修复（P0 生产事故 / 零日漏洞，走 Emergency Override） |
+| `/flnext-sdd-consultation` | 受控会诊（歧义评分 > 0.5 或 3b 投票僵局时自动触发） |
+| `/flnext-sdd-delta` | Delta 增量变更管理（需求变更不重写文档） |
 | `/flnext-sdd-help` | 帮助文档 |
+
+### CLI 命令
+
+| 命令 | 作用 |
+|------|------|
+| `npx flnext-sdd` | 安装框架到当前目录 |
+| `npx flnext-sdd --update` | 更新框架（保留 STATE.md 和 docs/sdd/） |
+| `npx flnext-sdd --status` | 查看项目进度 |
+| `npx flnext-sdd --audit` | 宪法合规审计 |
+| `npx flnext-sdd --self-check` | 显示 AI 自检清单路径 |
+| `npx flnext-sdd --drift-check` | 检测代码漂移 |
+| `npx flnext-sdd --delta-merge --feature <name>` | 合并 Delta 规格变更 |
+| `npx flnext-sdd --help` | 显示帮助 |
 
 ### 确认词
 
@@ -849,11 +1046,11 @@ git branch -d hotfix/{dev}-{desc}
 
 ### Q: 提测时的 AI 自检清单是什么？
 
-**内容**：AI 在推送前必须对照 `references/ai-self-check.md` 对自己的变更代码进行 8 大类约 40 项自检。❌ 项必须修复，⚠️ 项标注在 MR 描述中。
+**内容**：AI 在推送前必须对照 `references/ai-self-check.md` 对自己的变更代码进行 9 大类约 50 项自检。❌ 项必须修复，⚠️ 项标注在 MR/PR 描述中。
 
 **为什么**：防止 AI 写出有性能问题（N+1、无索引）、安全问题（SQL 注入、缺超时）、并发问题（共享状态无锁）的代码混入 MR。
 
-**结果在哪看**：每个 MR 的描述底部都有 `## 🤖 AI 自检报告`，包含分类汇总和具体问题列表。
+**结果在哪看**：每个 MR/PR 的描述底部都有 `## 🤖 AI 自检报告`，包含分类汇总和具体问题列表。
 
 ### Q: 文档存在哪里？
 
@@ -912,8 +1109,7 @@ dingtalk:
 
 ---
 
-> **FLNext-SDD v3.3.0**
+> **FLNext-SDD v4.0.0**
 > GitHub: https://github.com/top1from/flnext-sdd
 > npm: npx flnext-sdd@latest
-> 108 文件 | 12 阶段 | 15 命令 | 12 Agent | 8 类 40 项自检 | 钉钉AI表格联动
-> 审计对标: BMAD · GSD · Ouroboros · SDD-Team · OpenSpec · Spec-Kit · Superpowers
+> 13 阶段 | 19 命令 | 12 Agent | 9 类自检 | 5 状态机 | 3 级评估管道 | Delta 增量变更 | 钉钉AI表格联动

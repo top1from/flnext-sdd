@@ -1,10 +1,10 @@
 # FLNext-SDD 工作流总览
 
-## 完整工作流程（12 阶段，对齐公司 11 步开发流程）
+## 完整工作流程（13 阶段，含 7b 集成门控）
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│                    FLNext-SDD 12 阶段工作流 v3.0                          │
+│                    FLNext-SDD 13 阶段工作流 v4.0                          │
 │                                                                          │
 │   ┌──────────────────────────────────────────────────────────────────┐  │
 │   │  阶段0: Discovery (/flnext-sdd-discovery) [Brownfield 强制]            │  │
@@ -71,10 +71,17 @@
 │   │  阶段7: 功能测试 (/flnext-sdd-testing)                                  │  │
 │   │  输出: test-report.md                                            │  │
 │   │  Agent: 测试工程师 + QA                                           │  │
-│   │  条件: 测试通过才能提测                                            │  │
+│   │  条件: 测试通过才能进入集成门控                                      │  │
 │   └──────────────────────────────────────────────────────────────────┘  │
 │         │                                                                │
 │         ▼ [测试通过门控]                                                   │
+│   ┌──────────────────────────────────────────────────────────────────┐  │
+│   │  阶段7b: 集成门控 (/flnext-sdd-integration-gate) [v4.0]              │  │
+│   │  验证: Phase A + Phase B 同时 PASSED + 全栈联调                     │  │
+│   │  Agent: Hawk + Iron + Pixel                                      │  │
+│   └──────────────────────────────────────────────────────────────────┘  │
+│         │                                                                │
+│         ▼ [双编译+联调门控]                                                │
 │   ┌──────────────────────────────────────────────────────────────────┐  │
 │   │  阶段8: 提测 (/flnext-sdd-submit)                                       │  │
 │   │  输出: 推送到 develop 分支 + SUBMISSION.md                       │  │
@@ -115,6 +122,7 @@
 | 6 | Code (Phase B) | 前端开发 | /flnext-sdd-frontend |
 | 7 | Test Plan | 测试用例 | /flnext-sdd-testcase |
 | 8 | Test | 功能测试 | /flnext-sdd-testing |
+| 8b | Integration | 集成门控 | /flnext-sdd-integration-gate |
 | 9 | Integrate+Submit | 提测 | /flnext-sdd-submit |
 | 10 | Accept | 验收 | /flnext-sdd-accept |
 | 11 | Release | 发布 | /flnext-sdd-release |
@@ -125,7 +133,7 @@
 Wave 1 (串行):  数据库迁移 (B-01)
 Wave 2 (并行):  Entity+DTO (B-02, B-03)
 Wave 3 (并行):  Repository+Service+Controller+Auth (B-04~B-07)
-Wave 4 (并行):  后端测试+API Client (B-08, F-01)
+Wave 4 (并行):  后端测试+API Client Types (B-08, B-09)
                ──── Phase A 后端编译门禁 ────
 Wave 5 (并行):  共享组件 (F-02)
 Wave 6 (并行):  页面+状态+路由 (F-03~F-05)
@@ -146,11 +154,14 @@ Wave 7 (并行):  验证+错误处理 (F-06, F-07)
 | `/flnext-sdd-frontend` | 前端开发 | 后端 Phase A 编译通过 |
 | `/flnext-sdd-testcase` | 测试用例 | Phase B 编译通过 |
 | `/flnext-sdd-testing` | 功能测试 | 测试用例 CONFIRMED |
-| `/flnext-sdd-submit` | 提测 | 测试 PASS |
+| `/flnext-sdd-integration-gate` | 集成门控 | 功能测试 PASS + Phase A/B PASSED |
+| `/flnext-sdd-submit` | 提测 | 集成门控 CONFIRMED |
 | `/flnext-sdd-accept` | 验收 | 提测 CONFIRMED |
 | `/flnext-sdd-release` | 发布 | 验收 PASS |
 | `/flnext-sdd-status` | 状态查看 | 无 |
-| `/flnext-sdd-quick` | 快速通道 | 无 |
+| `/flnext-sdd-quick` | 快速通道（小需求） | 无 |
+| `/flnext-sdd-hotfix` | 紧急修复（P0） | 无 |
+| `/flnext-sdd-consultation` | 受控会诊 | 歧义评分 > 0.5 |
 | `/flnext-sdd-help` | 帮助 | 无 |
 
 ## 文件输出目录
@@ -181,6 +192,7 @@ Wave 7 (并行):  验证+错误处理 (F-06, F-07)
 | ui-spec.md | 5 | UI 实现详情 |
 | testcase.md | 6 | 测试用例文档 |
 | test-report.md | 7 | 测试报告 |
+| integration-gate-report.md | 7b | 集成门控验证报告 |
 | SUBMISSION.md | 8 | 提测报告 |
 | acceptance-report.md | 9 | 验收报告 |
 | RELEASE-NOTES.md | 10 | 发布说明 |
@@ -188,6 +200,7 @@ Wave 7 (并行):  验证+错误处理 (F-06, F-07)
 
 ---
 
-> FLNext-SDD v3.2.0
-> 合并来源: flnext-glm (骨架) + flnext-kimi (7-Wave + 状态机) + flnext-deepseek (门禁 + status)
+> FLNext-SDD v4.0.0
+> 合并来源: flnext-glm + flnext-kimi + flnext-deepseek + SDD-Forge v2.0
+> 13 阶段（含 3b 架构评审、7b 集成门控）
 > 功能隔离: docs/sdd/{FEATURE_NAME}/ 每需求独立子目录

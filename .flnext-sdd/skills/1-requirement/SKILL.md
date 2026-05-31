@@ -1,6 +1,6 @@
 ---
 name: "flnext-sdd-requirement"
-description: "[1/10] 需求讨论 — 从钉钉AI表格获取待排期需求，通过苏格拉底式追问明确需求范围。Triggers on '需求讨论', 'requirement', '开始需求'"
+description: "[1/13] 需求讨论 — 从钉钉AI表格获取待排期需求，通过苏格拉底式追问明确需求范围。Triggers on '需求讨论', 'requirement', '开始需求'"
 ---
 
 # 阶段1: 需求讨论

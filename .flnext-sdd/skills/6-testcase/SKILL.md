@@ -1,6 +1,6 @@
 ---
 name: "flnext-sdd-testcase"
-description: "[6/10] 测试用例 — 基于需求和设计编写测试用例，生成可追溯矩阵。Triggers on '测试用例', 'testcase', 'test case'"
+description: "[6/13] 测试用例 — 基于需求和设计编写测试用例，生成可追溯矩阵。Triggers on '测试用例', 'testcase', 'test case'"
 ---
 
 # 阶段6: 测试用例
@@ -19,11 +19,20 @@ description: "[6/10] 测试用例 — 基于需求和设计编写测试用例，
 
 ## 前置条件
 
-1. Phase B 编译门禁通过 (前端编译通过)
+1. Phase B 编译门禁通过 (前端编译通过) / 纯后端项目 SKIPPED
 2. docs/sdd/{FEATURE_NAME}/requirement-scope.md 存在
-3. docs/sdd/{FEATURE_NAME}/prd.md 存在
+3. docs/sdd/{FEATURE_NAME}/prd.md 存在（纯后端项目可选）
 4. docs/sdd/{FEATURE_NAME}/architecture.md 存在
 5. 读取 `docs/sdd/project-context.md`（如存在）
+
+### 纯后端项目处理
+
+如果 STATE.md 中 `project_backend_only: true` 或 config.yaml 中 `backend_only: true`：
+
+1. 测试用例聚焦后端：API 端点测试、数据库测试、业务逻辑测试
+2. 跳过 UI 交互测试用例（无需原型/PRD 依赖）
+3. 可追溯矩阵中不包含前端相关条目
+4. 其他流程不变
 
 ## Workflow
 

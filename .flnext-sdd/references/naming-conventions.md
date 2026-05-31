@@ -149,7 +149,7 @@ hotfix/xxxx  ──────────▶        hotfix/{dev}-{desc}（/fln
 
 阶段 8 (提测):
   feature rebase develop
-  AI 自检 → push feature → GitLab MR → 合并到 develop
+  AI 自检 → push feature → MR/PR → 合并到 develop
   合并后删除 feature 分支
 
 阶段 9 (验收):
@@ -181,14 +181,14 @@ hotfix/xxxx  ──────────▶        hotfix/{dev}-{desc}（/fln
    git branch -d hotfix/{dev}-{desc} # 删除 hotfix 分支
 ```
 
-### 保护分支规则 (GitLab 配置)
+### 保护分支规则 (Git 平台配置)
 
 | 分支 | 允许推送 | 允许合并 | 合并方式 |
 |------|---------|---------|---------|
-| `main` | ❌ 无人 | 仅 maintainer | Merge Request |
-| `develop` | ❌ 无人 | 仅 maintainer | Merge Request |
+| `main` | ❌ 无人 | 仅 maintainer | MR/PR |
+| `develop` | ❌ 无人 | 仅 maintainer | MR/PR |
 | `feature/*` | ✅ 开发者 | 开发者 | — |
-| `hotfix/*` | ✅ 开发者 | maintainer | Merge Request |
+| `hotfix/*` | ✅ 开发者 | maintainer | MR/PR |
 | `beta/*` | ✅ QA | QA/PM | — |
 
 ## 优先级规范
@@ -201,4 +201,4 @@ hotfix/xxxx  ──────────▶        hotfix/{dev}-{desc}（/fln
 
 ---
 
-> FLTeam-SDD v1.0.0
+> FLNext-SDD v4.0.0

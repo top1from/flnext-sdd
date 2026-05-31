@@ -6,6 +6,7 @@ output_folder: "docs/sdd"
 feature_name: ""                          # 当前功能名称，每个新功能/需求独立子目录
 default_branch: "main"
 project_type: "greenfield"                # greenfield / brownfield
+backend_only: false                        # 纯后端项目，自动跳过前端阶段
 
 # 功能隔离说明
 # 每个功能/需求在 docs/sdd/ 下生成独立子目录：
@@ -58,7 +59,7 @@ self_check:
   reference: "references/ai-self-check.md"
   report_in_mr: true                   # 自检报告附在 MR 描述中
   block_on_failure: true               # 有 ❌ 不通过项时阻止提测
-  categories:                          # 启用的检查类别（按项目类型调整）
+  categories:                          # 启用的检查类别（backend_only: true 时自动排除 frontend）
     - performance
     - database
     - external_api
@@ -66,7 +67,8 @@ self_check:
     - security
     - error_handling
     - code_quality
-    - frontend                        # 纯后端项目可删除此项
+    - frontend                        # backend_only 项目自动排除
+    - cross_phase                     # v4.0 跨阶段一致性（合并自 SDD-Forge）
 
 # 确认配置
 confirmation:
@@ -74,3 +76,31 @@ confirmation:
   allowed_confirm: ["确认", "confirm", "yes", "Y"]
   allowed_modify: ["N", "no", "需要修改"]
   allowed_save: ["S", "save", "保存进度"]
+
+# SDD-Forge 合并能力 (v4.0)
+cognitive_anchor:
+  enabled: true                        # 每 5 步认知锚定
+  step_interval: 5
+
+circuit_breaker:
+  enabled: true
+  threshold: 3                         # 连续 3 次违规触发熔断
+
+cross_phase_tracker:
+  enabled: true                        # 跨阶段一致性自动检测
+
+consultation_mode:
+  enabled: true                        # 受控会诊模式（替代 Party Mode）
+  ambiguity_threshold: 0.5             # 歧义评分超过此值触发会诊
+
+integration_gate:
+  enabled: true                        # 测试通过后、提测前强制全栈联调门控
+
+delta:
+  enabled: true
+  auto_merge_on_archive: true
+  delta_directory: "docs/sdd/{feature_name}/deltas"
+  max_delta_ratio: 0.6
+
+auto_mode:
+  enabled: false                       # 默认关闭，与严格门控冲突

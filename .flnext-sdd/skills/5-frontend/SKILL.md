@@ -1,6 +1,6 @@
 ---
 name: "flnext-sdd-frontend"
-description: "[5/10] 前端开发 — 基于原型设计和后端 API 实现前端界面。使用 7-Wave 编排 Wave 5-7，执行 Phase B 编译门禁。Triggers on '前端开发', 'frontend', 'UI实现'"
+description: "[5/13] 前端开发 — 基于原型设计和后端 API 实现前端界面。使用 7-Wave 编排 Wave 5-7，执行 Phase B 编译门禁。Triggers on '前端开发', 'frontend', 'UI实现'"
 ---
 
 # 阶段5: 前端开发
@@ -60,6 +60,29 @@ Wave 7 (并行):
 1. 检查前置条件（Phase A 通过）
 2. 读取 PRD、原型文档、API 设计文档
 3. 读取 project-context.md（Brownfield）
+4. **检查纯后端项目配置**（见下方说明）
+
+### 纯后端项目处理
+
+如果 STATE.md 中 `project_backend_only: true` 或 config.yaml 中 `backend_only: true`：
+
+1. 跳过前端开发（Wave 5-7）
+2. Phase B 编译门禁标记为 SKIPPED
+3. 更新状态并提示用户
+4. 直接进入下一步
+
+```yaml
+# 自动跳过逻辑
+if (project_backend_only) {
+  await updateState({
+    phase5: 'SKIPPED',
+    compilation_gates: { frontend: { status: 'SKIPPED' } }
+  });
+  console.log('✅ 纯后端项目，自动跳过前端开发');
+  console.log('Phase B 编译门禁: SKIPPED');
+  return; // 直接进入下一步
+}
+```
 
 ### Step 2: Wave 5 执行
 

@@ -77,22 +77,22 @@
 
 ### 6. 提测规范原则 (Submit Standard)
 
-**定义**: 提测须遵循 GitLab Flow 规范，通过 rebase + Merge Request 方式合并到 develop 分支。
+**定义**: 提测须遵循 Rebase + MR/PR 规范，通过 Merge Request / Pull Request 方式合并到 develop 分支。
 
 **执行规则**:
 - 功能测试全部通过才能提测
 - Feature 分支必须先 rebase 到最新 develop（不允许直接 merge）
-- 推送 feature 分支到远程，通过 GitLab Merge Request 合并到 develop
+- 推送 feature 分支到远程，通过 MR/PR（GitLab Merge Request / GitHub Pull Request）合并到 develop
 - 提测前必须确认代码已全部提交
-- MR 合并完成后需确认 develop 状态
+- MR/PR 合并完成后需确认 develop 状态
 
 **分支操作顺序**:
 ```
 feature/xxx 提交 → develop 拉最新 → feature rebase develop
-→ 解决冲突 → push feature → GitLab MR → 合并到 develop
+→ 解决冲突 → push feature → MR/PR → 合并到 develop
 ```
 
-**违反后果**: 未通过的测试直接提测将被拒绝。直接 merge 到 develop（未经 MR）视为违规。
+**违反后果**: 未通过的测试直接提测将被拒绝。直接 merge 到 develop（未经 MR/PR）视为违规。
 
 ---
 
@@ -155,14 +155,75 @@ feature/xxx 提交 → develop 拉最新 → feature rebase develop
 
 ---
 
+### 11. 认知锚定原则 (Cognitive Anchoring)
+
+**定义**: 为防止长会话中 AI 遗忘核心约束，每执行 5 个可观测步骤后，AI 必须主动复述当前适用的宪章核心约束条款。
+
+**执行规则**:
+- 复述内容必须与宪法原文一致；若发现偏差，立即自我纠正
+- 若当前处于特定阶段，需额外锚定该阶段的专属约束（如 Phase B 需锚定"后端已确认"）
+
+**违反后果**: 遗漏认知锚定 → WARNING，必须在下一步补正；严重偏离 → 违规计数 +1。
+
+---
+
+### 12. 决策血缘原则 (Decision Lineage)
+
+**定义**: 每个进入 Release 候选的技术决策，必须携带完整的决策血缘记录。无血缘记录的决策视为临时决策，不得合并入主干或发布。
+
+**决策血缘五元组**: 决策 ID、依据（Requirement/ADR/Context）、推理链、关键假设、已知风险、替代方案（至少 1 个被拒绝方案及原因）。
+
+**违反后果**: 缺失血缘的决策不得标记为完成，必须补录；故意隐瞒替代方案 → 违规计数 +2。
+
+---
+
+### 13. 熔断机制原则 (Circuit Breaker)
+
+**定义**: 当 AI 连续累计 3 次宪法违规，触发熔断机制，会话自动暂停，进入强制合规审查（Compliance Review）。
+
+**执行规则**:
+- 每次违规显式输出：`[宪法违规] 第 N 次违规，详情：{描述}。当前累计：X/3。`
+- 达到 3/3 时立即停止一切工作，回溯最近 10 个步骤，输出《合规审查报告》
+- 审查完成后须用户用严格确认词确认方可恢复，违规计数器清零
+
+**违反后果**: 熔断状态下擅自恢复工作 → 会话标记为失信，所有输出可信度降级。
+
+---
+
+### 14. 集成门控原则 (Integration Gate)
+
+**定义**: 功能测试通过后、提测前，必须验证 Phase A（后端）与 Phase B（前端）编译门禁**同时**处于 PASSED 状态，并完成全栈联调。
+
+**执行规则**:
+- 一个绿的后端 + 一个红的前端 = 不可提测
+- 联调失败须路由回对应开发阶段修复，不得跳过集成门控直接提测
+
+**违反后果**: 跳过集成门控直接提测将被拒绝。
+
+---
+
+## 紧急豁免条款 (Emergency Override)
+
+**适用范围**（仅以下情况可触发，详见 `/flnext-sdd-hotfix`）:
+1. P0 生产事故：服务宕机、数据损坏、核心功能全量不可用
+2. 零日安全漏洞：CVSS ≥ 9.0 且正在被主动利用
+3. 数据恢复操作：意外数据删除、Schema 损坏需紧急回滚
+
+**约束**: 即使紧急状态，双编译门禁、禁止私自变更技术选型、证据胜于断言、AI 自检仍完全强制执行。
+
+---
+
 ## 状态机规则
 
-所有阶段遵循 4 状态机（源自 Kimi）:
+所有阶段遵循 5 状态机（源自 Kimi）:
 
 ```
 PENDING → IN_PROGRESS → AWAITING_CONFIRMATION → CONFIRMED
                                                         ↓
                                                     COMPLETE (最终阶段)
+
+特殊状态:
+  SKIPPED — 因项目配置（如 backend_only）跳过的阶段，不参与门控检查
 ```
 
 **状态转换规则**:
@@ -170,7 +231,9 @@ PENDING → IN_PROGRESS → AWAITING_CONFIRMATION → CONFIRMED
 2. IN_PROGRESS → AWAITING_CONFIRMATION: 阶段工作完成，等待确认
 3. AWAITING_CONFIRMATION → CONFIRMED: 用户使用严格确认词确认
 4. AWAITING_CONFIRMATION → IN_PROGRESS: 用户要求修改（回退）
-5. CONFIRMED 状态不可回退（除非整体回滚）
+5. CONFIRMED → COMPLETE: 项目整体完成（仅作用于最终阶段 10-release）
+6. PENDING → SKIPPED: 因项目配置自动跳过（仅 backend_only 触发阶段 5）
+7. SKIPPED 状态不可回退，等同于该阶段已完成且不参与门控
 
 ---
 
@@ -191,6 +254,9 @@ PENDING → IN_PROGRESS → AWAITING_CONFIRMATION → CONFIRMED
 | **绕过编译检查声称联调通过** | **测试真实性** | **违反原则 9** |
 | **"looks good"无发现即通过评审** | **对抗性评审** | **违反原则 8** |
 | **不经确认降低实现标准** | **禁止私自变更** | **违反原则 7** |
+| **跳过集成门控直接提测** | **集成门控** | **违反原则 14** |
+| **连续 3 次违规不熔断** | **熔断机制** | **违反原则 13** |
+| **重大决策无血缘记录** | **决策血缘** | **违反原则 12** |
 
 ---
 
@@ -205,10 +271,11 @@ PENDING → IN_PROGRESS → AWAITING_CONFIRMATION → CONFIRMED
 5. **更新 STATE.md** — 每个步骤完成后更新状态
 6. **等待严格确认** — 在门控点等待用户使用严格确认词
 7. **编译失败停止** — 遇到编译错误立即停止，等待人工介入
+8. **遵守步骤协议** — 读取 `references/step-protocol.md`（认知锚定、熔断、GVR、决策血缘）
 
 ---
 
-**版本**: 3.2.0
-**合并来源**: flnext-glm v1.0 + flnext-kimi v1.0 + flnext-deepseek v1.0 + BMAD (ADR+对抗性) + GSD (集成检查+Nyquist) + Ouroboros (3级评估)
-**更新日期**: 2026-05-10
+**版本**: 4.0.0
+**合并来源**: flnext-glm + flnext-kimi + flnext-deepseek + SDD-Forge v2.0（认知锚定/决策血缘/熔断/集成门控/会诊模式/9类自检）
+**更新日期**: 2026-05-31
 **适用范围**: FLNext-SDD 框架所有项目

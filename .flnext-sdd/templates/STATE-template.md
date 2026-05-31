@@ -1,19 +1,21 @@
 ---
-sdd_version: 3.0
+sdd_version: 4.0.0
 project_name: ""
 project_type: "greenfield"              # greenfield / brownfield
+project_backend_only: false              # 纯后端项目，自动跳过前端阶段
 current_phase: 0                        # 0=未开始, 0=Discovery, 1-10=各阶段
 phase_status: pending                   # pending / in_progress / awaiting_confirmation / confirmed / complete
 next_action: /flnext-sdd-discovery             # 下一步推荐命令
 phase_name: ""
 
-# 4 状态机 (源自 Kimi)
+# 5 状态机 (源自 Kimi + FLNext-SDD v4.0)
 # PENDING → IN_PROGRESS → AWAITING_CONFIRMATION → CONFIRMED
 #                                                           ↓
 #                                                       COMPLETE (最终阶段)
+# 特殊: SKIPPED — 因 backend_only 跳过的阶段，等同已通过
 
 progress:
-  total_phases: 11                      # 0-Discovery + 1~10
+  total_phases: 13                     # 0-Discovery + 1~10 + 7b 集成门控
   completed_phases: 0
   percent: 0
 
@@ -57,6 +59,11 @@ phases:
   7-testing:
     status: PENDING
     result: ""                           # PASS / REWORK / HOLD
+    confirmed_by: ""
+    confirmed_date: ""
+  7b-integration-gate:
+    status: PENDING
+    result: ""                           # PASS / REWORK
     confirmed_by: ""
     confirmed_date: ""
   8-submit:
@@ -113,6 +120,15 @@ dingtalk:
     ai_end: ""                             # AI结束时间 fieldId
     req_id: ""                             # 需求编号 fieldId
     req_name: ""                           # 需求名称 fieldId
+
+# 宪法合规追踪 (v4.0，合并自 SDD-Forge)
+constitution_compliance:
+  violations: 0
+  last_audit: ""
+  status: COMPLIANT
+  corrective_actions: []
+
+decision_lineage: []                     # 决策血缘记录 DEC-YYYYMMDD-NNN
 
 metadata:
   created_at: ""

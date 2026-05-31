@@ -1,6 +1,6 @@
 ---
 name: "flnext-sdd-prototype"
-description: "[2/10] 原型设计 — 创建 HTML 原型和 PRD 文档。Triggers on '原型', 'prototype', 'PRD', '界面设计'"
+description: "[2/13] 原型设计 — 创建 HTML 原型和 PRD 文档。Triggers on '原型', 'prototype', 'PRD', '界面设计'"
 ---
 
 # 阶段2: 原型设计

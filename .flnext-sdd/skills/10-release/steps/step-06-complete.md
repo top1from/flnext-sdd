@@ -17,7 +17,7 @@ Version: v{version}
 Branch: main
 Tag: v{version}
 
-All 11 Phases Completed (0-10):
+All 13 Phases Completed (0-10 + 7b):
   0. ✅ Discovery
   1. ✅ 需求讨论
   2. ✅ 原型设计
@@ -27,6 +27,7 @@ All 11 Phases Completed (0-10):
   5. ✅ 前端开发
   6. ✅ 测试用例
   7. ✅ 功能测试
+  7b.✅ 集成门控
   8. ✅ 提测
   9. ✅ 验收
   10.✅ 发布
@@ -45,6 +46,10 @@ phases:
     status: COMPLETE
     version: "v{version}"
     tag: "v{version}"
+
+progress:
+  completed_phases: 13
+  percent: 100
 ```
 
 ---

@@ -38,7 +38,7 @@
 问题: 功能测试是否完成？测试结果是否可以提测？
 
 选项:
-- [PASS] ✅ 测试通过，进入提测 (/flnext-sdd-submit)
+- [PASS] ✅ 测试通过，进入集成门控 (/flnext-sdd-integration-gate)
 - [REWORK] ❌ 有失败用例，返回修复
 - [HOLD] ⏸️ 暂缓，保存进度
 ```
@@ -51,17 +51,17 @@
 ```yaml
 current_phase: 7
 phase_status: completed
-next_action: /flnext-sdd-submit
+next_action: /flnext-sdd-integration-gate
 progress:
   completed_phases: 8
-  percent: 88
+  percent: 62
 ```
 
 提示:
 ```
 ✅ 功能测试通过！
 
-➡️ 下一步: 运行 /flnext-sdd-submit 进行提测
+➡️ 下一步: 运行 /flnext-sdd-integration-gate 进行双编译+全栈联调门控
 ```
 
 **IF 用户选择 [REWORK]:**
@@ -70,4 +70,4 @@ progress:
 
 ---
 
-**阶段完成**: 进入 /flnext-sdd-submit (如果通过)
+**阶段完成**: 进入 /flnext-sdd-integration-gate (如果通过)

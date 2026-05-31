@@ -1,8 +1,8 @@
-# Step 2: Wave 1-2 执行（数据库迁移 + Entity/DTO）
+# Step 2: Wave 1 执行（数据库迁移）
 
 ## Goal
 
-执行 Wave 1（数据库迁移验证）和 Wave 2（Entity/DTO 创建）。
+执行 Wave 1 数据库迁移，验证表结构创建正确。
 
 ## ⚠️ 数据库连接验证（Wave 1 前置）
 
@@ -86,13 +86,6 @@ D. 暂时使用 Docker 启动一个实例
 5. 验证表结构: `npm run db:verify` 或等效命令
 6. **确认迁移成功才能进入 Wave 2**
 
-## Wave 2: Entity + DTO（并行）
-
-子代理 B-02: Entity / Domain Models（并行）
-子代理 B-03: DTOs (Create/Update)（并行）
-
-每个子代理接收: 任务 XML + 架构文档段落 + ADR 决策记录
-
 ---
 
-**下一步**: `./step-03-wave3.md` 或 Wave 2 完成后进入 Wave 3
+**下一步**: `./step-02.5-wave2.md`

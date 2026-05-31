@@ -1,6 +1,6 @@
 ---
 name: "flnext-sdd-release"
-description: "[10/10] 发布 — 合并到 main 分支，打版本标签，生成发布说明。Triggers on '发布', 'release', '上线'"
+description: "[10/13] 发布 — 合并到 main 分支，打版本标签，生成发布说明。Triggers on '发布', 'release', '上线'"
 ---
 
 # 阶段10: 发布
@@ -176,19 +176,20 @@ Version: v{version}
 Branch: main
 Tag: v{version}
 
-All 11 Phases Completed (0-10):
-  0. ✅ Discovery
-  1. ✅ 需求讨论
-  2. ✅ 原型设计
-  3. ✅ 架构设计
-  3b.✅ 架构评审
-  4. ✅ 后端开发
-  5. ✅ 前端开发
-  6. ✅ 测试用例
-  7. ✅ 功能测试
-  8. ✅ 提测
-  9. ✅ 验收
-  10.✅ 发布
+All 13 Phases Completed (0-10, including 3b & 7b):
+  0.  ✅ Discovery
+  1.  ✅ 需求讨论
+  2.  ✅ 原型设计
+  3.  ✅ 架构设计
+  3b. ✅ 架构评审
+  4.  ✅ 后端开发 (Phase A)
+  5.  ✅ 前端开发 (Phase B)
+  6.  ✅ 测试用例
+  7.  ✅ 功能测试
+  7b. ✅ 集成门控
+  8.  ✅ 提测
+  9.  ✅ 验收
+  10. ✅ 发布
 
 ═══════════════════════════════════════════════════════════════
 ```

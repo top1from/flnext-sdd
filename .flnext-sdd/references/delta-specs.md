@@ -1,7 +1,7 @@
 # Delta 规格变更模型
 
-> 灵感来源: OpenSpec 的 delta-based 变更系统
-> 版本: 1.0.0
+> **完整规范请参阅**: [`../delta/delta-format.md`](../delta/delta-format.md) 与 [`../delta/merge-guide.md`](../delta/merge-guide.md)
+> 本文件为快速参考摘要。
 
 ## 核心概念
 
