@@ -42,16 +42,16 @@ naming:
 # Discovery 配置 (brownfield 项目)
 discovery:
   scan_depth: "deep"                   # quick / deep / exhaustive
-  auto_detect_tech_stack: true
-  drift_detection: true
-  ambiguity_threshold: 0.2
+  auto_detect_tech_stack: true         # AI Agent 在 0-discovery step-02-scan 中执行（Tech Agent 扫描）
+  drift_detection: true                # cli.js --drift-check 实现（含自动基线建立）
+  ambiguity_threshold: 0.2             # 歧义评分阈值（0-discovery step-03-interview 中 AI Agent 计算）
 
-# 开发配置
+# 开发配置（以下特性由 AI Agent 在运行时按 SKILL.md 步骤文件执行，非程序化引擎）
 development:
-  wave_execution: true                 # 启用 7-Wave 编排
-  dual_compilation_gate: true          # 启用双编译门禁
-  subagent_execution: true             # 启用子代理并行开发
-  atomic_commits: true                 # 原子提交
+  wave_execution: true                 # 7-Wave 编排（AI Agent 按 step 文件分 Wave 执行）
+  dual_compilation_gate: true          # 双编译门禁（step-05-gate-a/b.md 步骤文件实现）
+  subagent_execution: true             # 子代理并行（Claude Code Task tool 原生能力）
+  atomic_commits: true                 # 原子提交（AI Agent 按规范执行 git commit）
 
 # AI 自检配置
 self_check:
@@ -77,24 +77,24 @@ confirmation:
   allowed_modify: ["N", "no", "需要修改"]
   allowed_save: ["S", "save", "保存进度"]
 
-# SDD-Forge 合并能力 (v4.0)
+# SDD-Forge 合并能力 (v4.0) — 以下特性由 AI Agent 自律执行
 cognitive_anchor:
-  enabled: true                        # 每 5 步认知锚定
+  enabled: true                        # 每 5 步认知锚定（AI Agent 按 step-protocol.md 自查）
   step_interval: 5
 
 circuit_breaker:
   enabled: true
-  threshold: 3                         # 连续 3 次违规触发熔断
+  threshold: 3                         # 连续 3 次违规触发熔断（AI Agent 自查，cli.js --audit 被动检测）
 
 cross_phase_tracker:
-  enabled: true                        # 跨阶段一致性自动检测
+  enabled: true                        # 跨阶段一致性（提测时 AI 自检第 9 类，见 references/ai-self-check.md）
 
 consultation_mode:
-  enabled: true                        # 受控会诊模式（替代 Party Mode）
-  ambiguity_threshold: 0.5             # 歧义评分超过此值触发会诊
+  enabled: true                        # 受控会诊模式（0-discovery 歧义>0.5 或 3b 投票僵局时 AI 自行触发）
+  ambiguity_threshold: 0.5
 
 integration_gate:
-  enabled: true                        # 测试通过后、提测前强制全栈联调门控
+  enabled: true                        # 测试通过后、提测前强制全栈联调（7b-integration-gate SKILL 步骤文件实现）
 
 delta:
   enabled: true
@@ -103,4 +103,4 @@ delta:
   max_delta_ratio: 0.6
 
 auto_mode:
-  enabled: false                       # 默认关闭，与严格门控冲突
+  enabled: false                       # [预留] 自动确认模式，与严格门控冲突，暂不开放

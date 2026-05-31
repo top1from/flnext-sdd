@@ -45,8 +45,6 @@ IF 本地版本 < 最新版本:
 **更新命令**：
 ```bash
 npx flnext-sdd@latest --update
-# 或本地脚本
-powershell -File .flnext-sdd/install.ps1 -Update
 ```
 
 > ⚠️ 更新后 skill 文件已刷新，需重新读取当前 step 文件后再继续。

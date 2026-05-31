@@ -72,10 +72,10 @@ function showHelp() {
   npx flnext-sdd --help                    显示帮助
 
 工作流命令（Claude Code）:
-  /flnext-sdd-discovery | requirement | prototype | architecture
-  /flnext-sdd-backend | frontend | testcase | testing
-  /flnext-sdd-integration-gate | submit | accept | release
-  /flnext-sdd-hotfix | consultation | quick | status | help
+  /flnext-sdd-discovery | requirement | prototype | architecture | arch-review
+  /flnext-sdd-backend | frontend | testcase | testing | integration-gate
+  /flnext-sdd-submit | accept | release
+  /flnext-sdd-delta | hotfix | consultation | quick | status | help
 `);
 }
 
@@ -420,25 +420,42 @@ function runSelfCheck() {
 function runDriftCheck() {
   const manifestPath = path.join(CWD, 'docs', 'sdd', '.scan-manifest.json');
   console.log('\n代码漂移检测\n');
+
+  // 扫描当前文件结构
+  function scanDir(dir, prefix) {
+    const results = [];
+    if (!fs.existsSync(dir)) return results;
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${e.name}` : e.name;
+      if (e.isDirectory()) {
+        if (['node_modules', 'dist', 'build', '.git', '.claude', 'docs'].includes(e.name)) continue;
+        results.push(...scanDir(path.join(dir, e.name), rel));
+      } else results.push(rel);
+    }
+    return results;
+  }
+
+  const current = scanDir(CWD, '');
+
   if (!fs.existsSync(manifestPath)) {
-    console.log('  未找到 scan manifest，请先运行 Discovery\n');
+    // 无基线：自动从当前状态生成
+    const manifest = {
+      generated_at: new Date().toISOString().slice(0, 10),
+      baseline: { files: current, count: current.length },
+      note: '自动生成，无需 Discovery。后续 drift-check 将以此为新基线。'
+    };
+    const sddDir = path.join(CWD, 'docs', 'sdd');
+    if (!fs.existsSync(sddDir)) fs.mkdirSync(sddDir, { recursive: true });
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf-8');
+    console.log(`  基线已自动建立: ${current.length} 个文件`);
+    console.log(`  下次运行 --drift-check 将检测偏离\n`);
     return;
   }
+
+  // 有基线：执行对比
   try {
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
     const baseline = (manifest.baseline && manifest.baseline.files) || [];
-    const current = [];
-    function scan(dir, prefix) {
-      if (!fs.existsSync(dir)) return;
-      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-        const rel = prefix ? `${prefix}/${e.name}` : e.name;
-        if (e.isDirectory()) {
-          if (['node_modules', 'dist', 'build', '.git'].includes(e.name)) continue;
-          scan(path.join(dir, e.name), rel);
-        } else current.push(rel);
-      }
-    }
-    scan(CWD, '');
     const added = current.filter(f => !baseline.includes(f));
     const removed = baseline.filter(f => !current.includes(f));
     const ratio = baseline.length ? (added.length + removed.length) / baseline.length : 0;
